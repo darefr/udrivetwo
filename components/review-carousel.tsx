@@ -13,17 +13,24 @@ import {
 import { CardRail } from './card-rail'
 import { useInteractive } from '@/lib/use-interactive'
 
-export function ReviewCard({ review }: { review: Review }) {
+import { useRentalPlatform } from './platform-provider'
+export function ReviewCard({
+  review,
+  sample = true,
+}: {
+  review: Review
+  sample?: boolean
+}) {
   return (
     <article
       className="review-card"
-      aria-label={`Illustrative traveller story from ${review.name}`}
+      aria-label={`${sample ? 'Illustrative traveller story' : 'Verified rental review'} from ${review.name}`}
     >
       <div className="review-top">
         <span
           className="stars"
           role="img"
-          aria-label={`${review.rating} out of 5 stars, illustrative rating`}
+          aria-label={`${review.rating} out of 5 stars${sample ? ', illustrative rating' : ''}`}
         >
           {Array.from({ length: 5 }, (_, i) => (
             <Star
@@ -34,7 +41,9 @@ export function ReviewCard({ review }: { review: Review }) {
             />
           ))}
         </span>
-        <span className="sample-tag">Sample story</span>
+        <span className="sample-tag">
+          {sample ? 'Sample story' : 'Completed rental'}
+        </span>
       </div>
       <blockquote>{`“${review.text}”`}</blockquote>
       <div className="review-author">
@@ -68,7 +77,9 @@ export function ReviewCarousel({
 }) {
   const [filter, setFilter] = useState<'all' | RentalMode>('all')
   const ready = useInteractive()
-  const reviews = demoReviews.filter(
+  const { reviews: published } = useRentalPlatform()
+  const illustrative = published.length === 0
+  const reviews = (illustrative ? demoReviews : published).filter(
     (r) => filter === 'all' || r.rentalType === filter,
   )
   return (
@@ -83,8 +94,9 @@ export function ReviewCarousel({
             title: standalone
               ? 'A closer look at the experience.'
               : 'From the passenger seat.',
-            description:
-              'Illustrative rental stories, not verified customer reviews.',
+            description: illustrative
+              ? 'Illustrative rental stories, not verified customer reviews.'
+              : 'Approved reviews from travellers who completed a U Drive rental.',
             href: standalone ? undefined : '/reviews',
             linkText: 'All reviews',
           }}
@@ -114,7 +126,11 @@ export function ReviewCarousel({
           }
         >
           {reviews.map((review) => (
-            <ReviewCard key={review.name} review={review} />
+            <ReviewCard
+              key={review.name + review.text}
+              review={review}
+              sample={illustrative}
+            />
           ))}
         </CardRail>
       </div>

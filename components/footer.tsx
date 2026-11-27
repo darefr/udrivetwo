@@ -2,12 +2,7 @@ import Link from 'next/link'
 import { ArrowRight, ArrowUpRight, MapPin, Route } from 'lucide-react'
 import { Brand } from './brand'
 import { CookieSettingsLink } from './privacy-controls'
-import {
-  business,
-  destinations,
-  fleet,
-  whatsAppContact,
-} from '@/lib/rental-data'
+import { business } from '@/lib/rental-data'
 
 export function CTA() {
   return (
@@ -31,54 +26,62 @@ export function CTA() {
 }
 export { FloatingContact } from './floating-contact'
 
-const groups = [
-  {
-    title: 'Fleet',
-    links: [
-      ...fleet.slice(0, 4).map((v) => [v.name, `/fleet/${v.slug}`]),
-      ['View full fleet', '/fleet'],
-    ],
-  },
-  {
-    title: 'Rental Services',
-    links: [
-      ['Self Drive', '/self-drive'],
-      ['With Driver', '/with-driver'],
-      ['Compare rental options', '/rental-options'],
-      ['Booking', '/booking'],
-    ],
-  },
-  {
-    title: 'Explore Nepal',
-    links: [
-      ...destinations
-        .slice(0, 4)
-        .map((d) => [d.name, `/destinations/${d.slug}`]),
-      ['All destinations', '/destinations'],
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      ['About U Drive', '/about'],
-      ['How It Works', '/how-it-works'],
-      ['Reviews', '/reviews'],
-      ['FAQ', '/faq'],
-      ['Contact', '/contact'],
-    ],
-  },
-  {
-    title: 'Customer Support',
-    links: [
-      ['Sign In', '/sign-in'],
-      ['Create Account', '/create-account'],
-      ['Contact the team', '/contact'],
-      ['WhatsApp', whatsAppContact.href],
-    ],
-  },
-]
+import { catalog } from '@/lib/platform/catalog'
+import { settings } from '@/lib/platform/database'
+import { rentalContact } from '@/lib/contact-link'
+export async function Footer() {
+  const [{ fleet, destinations }, cfg] = await Promise.all([
+    catalog(),
+    settings(),
+  ])
+  const whatsAppContact = rentalContact(cfg.whatsapp)
+  const groups = [
+    {
+      title: 'Fleet',
+      links: [
+        ...fleet.slice(0, 4).map((v) => [v.name, `/fleet/${v.slug}`]),
+        ['View full fleet', '/fleet'],
+      ],
+    },
+    {
+      title: 'Rental Services',
+      links: [
+        ['Self Drive', '/self-drive'],
+        ['With Driver', '/with-driver'],
+        ['Compare rental options', '/rental-options'],
+        ['Booking', '/booking'],
+      ],
+    },
+    {
+      title: 'Explore Nepal',
+      links: [
+        ...destinations
+          .slice(0, 4)
+          .map((d) => [d.name, `/destinations/${d.slug}`]),
+        ['All destinations', '/destinations'],
+      ],
+    },
+    {
+      title: 'Company',
+      links: [
+        ['About U Drive', '/about'],
+        ['How It Works', '/how-it-works'],
+        ['Reviews', '/reviews'],
+        ['FAQ', '/faq'],
+        ['Contact', '/contact'],
+      ],
+    },
+    {
+      title: 'Customer Support',
+      links: [
+        ['Sign In', '/sign-in'],
+        ['Create Account', '/create-account'],
+        ['Contact the team', '/contact'],
+        ['WhatsApp', whatsAppContact.href],
+      ],
+    },
+  ]
 
-export function Footer() {
   return (
     <footer className="site-footer">
       <div className="wrap">
@@ -93,7 +96,7 @@ export function Footer() {
               rel="noopener noreferrer"
             >
               <img src="/images/whatsapp.svg" alt="" width={16} height={16} />
-              {business.whatsappNumber}
+              {whatsAppContact.number}
               <ArrowUpRight size={13} />
             </a>
             <span className="inline-icon">

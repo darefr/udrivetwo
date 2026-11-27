@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { ChevronDown, Sparkles } from 'lucide-react'
-import { whatsAppContact } from '@/lib/rental-data'
 import { useRentalChat } from '@/lib/use-rental-chat'
 import {
   Popover,
@@ -25,7 +24,9 @@ const ChatPanel = dynamic(
   },
 )
 
+import { useContact } from './platform-provider'
 export function FloatingContact() {
+  const whatsAppContact = useContact()
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const dock = useRef<HTMLElement>(null)

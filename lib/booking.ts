@@ -1,4 +1,11 @@
-import { getVehicle, modeLabel, money, pickupLocations } from './rental-data'
+import type { Quote } from './platform/contracts'
+import {
+  fleet,
+  getVehicle,
+  modeLabel,
+  money,
+  pickupLocations,
+} from './rental-data'
 import {
   daysBetween,
   displayDate,
@@ -36,15 +43,17 @@ export function validateStep(
   handover: Handover,
   customer: Customer,
   today = todayInNepal(),
+  vehicles = fleet,
+  places = pickupLocations,
 ) {
   const errors: Record<string, string> = {}
-  const car = getVehicle(trip.vehicle)
+  const car = vehicles.find((v) => v.slug === trip.vehicle)
   if (step === 0 && (!car || car.availability === 'Unavailable'))
     errors.vehicle = 'Choose a vehicle that is open for rental enquiries.'
   if (step === 1 && !car?.modes.includes(trip.mode))
     errors.mode = 'Choose a rental type offered for this car.'
   if (step === 2) {
-    if (!pickupLocations.includes(trip.pickup))
+    if (!places.includes(trip.pickup))
       errors.pickup = 'Choose your pickup location.'
     if (needsAddress(trip, handover) && handover.address.trim().length < 4)
       errors.address =
@@ -67,12 +76,8 @@ export function validateStep(
     )
       errors.phone =
         'Enter a phone number with 7–15 digits. A country code is welcome.'
-    if (
-      customer.email.trim() &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email.trim())
-    )
-      errors.email =
-        'Use an email like name@example.com, or leave this optional field blank.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email.trim()))
+      errors.email = 'Enter a valid email address for your booking updates.'
   }
   return errors
 }
@@ -80,8 +85,9 @@ export function enquiryRows(
   trip: Trip,
   handover: Handover,
   customer: Customer,
+  car = getVehicle(trip.vehicle),
+  quote?: Quote,
 ): [string, string][] {
-  const car = getVehicle(trip.vehicle)
   if (!car) return []
   const days = daysBetween(trip.start, trip.end)
   return [
@@ -104,9 +110,17 @@ export function enquiryRows(
     ['Pickup date', displayDate(trip.start)],
     ['Return date', displayDate(trip.end)],
     ['Rental duration', `${days} ${days === 1 ? 'day' : 'days'}`],
-    ['Daily rate', money(car.dailyRate)],
-    ['Estimated vehicle total', money(days * car.dailyRate)],
-    ...(trip.mode === 'with-driver'
+    ...(quote
+      ? ([
+          ['Daily rate', money(quote.rate, quote.currency)],
+          ['Vehicle subtotal', money(quote.subtotal, quote.currency)],
+          ['Delivery', money(quote.delivery, quote.currency)],
+          ['Additional charges', money(quote.additional, quote.currency)],
+          ['Discount', money(quote.discount, quote.currency)],
+          ['Estimated total', money(quote.total, quote.currency)],
+        ] as [string, string][])
+      : []),
+    ...(trip.mode === 'with-driver' && quote?.driverQuoted
       ? [
           ['Driver service', 'Requested · fee to be confirmed'] as [
             string,

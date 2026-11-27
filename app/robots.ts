@@ -9,7 +9,14 @@ export default function robots(): MetadataRoute.Robots {
         : {
             userAgent: '*',
             allow: '/',
-            disallow: ['/api/', '/admin/', '/_vercel/'],
+            disallow: [
+              '/api/',
+              '/admin',
+              '/account',
+              '/reset-password',
+              '/verify-email',
+              '/_vercel/',
+            ],
           },
     sitemap: `${siteOrigin}/sitemap.xml`,
   }

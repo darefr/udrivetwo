@@ -11,7 +11,6 @@ import {
   SlidersHorizontal,
 } from 'lucide-react'
 import {
-  fleet,
   fleetCategories,
   matchesCategory,
   modeLabel,
@@ -19,14 +18,22 @@ import {
 } from '@/lib/rental-data'
 import { displayDate, type Trip } from '@/lib/trip'
 import { VehicleCard } from './vehicle-card'
+import { useRentalPlatform } from './platform-provider'
 
 export function FleetResults({
   trip,
   searched,
+  blocked,
 }: {
   trip: Trip
   searched: boolean
+  blocked: string[]
 }) {
+  const { fleet: catalog } = useRentalPlatform()
+  const fleet = catalog.filter(
+    (v) =>
+      !trip.start || !trip.end || (v.available && !blocked.includes(v.slug)),
+  )
   const params = useSearchParams()
   const category =
     fleetCategories.find((c) => c.toLowerCase() === params.get('category')) ??

@@ -14,7 +14,7 @@ import {
   Sparkles,
   X,
 } from 'lucide-react'
-import { whatsAppContact } from '@/lib/rental-data'
+import { useContact } from './platform-provider'
 import {
   maxQuestion,
   type ChatLanguage,
@@ -63,6 +63,7 @@ const prompts = {
   ],
 }
 function ReplyAction({ turn, close }: { turn: ChatTurn; close: () => void }) {
+  const whatsAppContact = useContact()
   if (!turn.action) return null
   if (turn.action === 'team')
     return (
@@ -103,6 +104,7 @@ export function RentalChatPanel({
   chat: RentalChat
   onClose: () => void
 }) {
+  const whatsAppContact = useContact()
   const [resetting, setResetting] = useState(false)
   const [showPrompts, setShowPrompts] = useState(false)
   const recent = chat.turns.filter((m) => m.role === 'assistant').at(-1)
@@ -137,7 +139,7 @@ export function RentalChatPanel({
           <p>
             {recent?.source === 'ai'
               ? 'AI rental assistant'
-              : 'Catalog guide · Live AI not connected'}
+              : 'Rental guide · U Drive records'}
           </p>
         </div>
         <button
@@ -391,7 +393,7 @@ export function RentalChatPanel({
           {recent?.source === 'offline'
             ? 'Offline catalog guide'
             : 'Tab-session chat'}{' '}
-          · No live availability or reservations.
+          · Only the rental desk confirms bookings.
         </p>
       </form>
     </>

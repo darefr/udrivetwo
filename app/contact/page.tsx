@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { DeskQuestions, PageIntro } from '@/components/shared'
 import { ContactForm } from '@/components/contact-form'
-import { getVehicle } from '@/lib/rental-data'
+import { catalog } from '@/lib/platform/catalog'
 import { type Query } from '@/lib/trip'
 import { pageMetadata } from '@/lib/site-metadata'
 export const metadata: Metadata = pageMetadata('/contact')
@@ -12,7 +12,7 @@ export default async function ContactPage({
 }) {
   const { vehicle, topic } = await searchParams
   const feedback = topic === 'rental-feedback'
-  const car = getVehicle(typeof vehicle === 'string' ? vehicle : undefined)
+  const car = (await catalog()).fleet.find((v) => v.slug === vehicle)
   return (
     <>
       <PageIntro

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { BookingForm } from '@/components/booking-form'
 import { PageIntro } from '@/components/shared'
-import { destinations } from '@/lib/rental-data'
+import { catalog } from '@/lib/platform/catalog'
 import { readTrip, type Query } from '@/lib/trip'
 import { pageMetadata } from '@/lib/site-metadata'
 export const metadata: Metadata = pageMetadata('/booking')
@@ -11,7 +11,8 @@ export default async function BookingPage({
   searchParams: Promise<Query>
 }) {
   const query = await searchParams
-  const initial = readTrip(query)
+  const { fleet, pickupLocations, destinations } = await catalog()
+  const initial = readTrip(query, fleet, pickupLocations)
   const duration =
     typeof query.duration === 'string' ? Number(query.duration) : 0
   const plannedDays =

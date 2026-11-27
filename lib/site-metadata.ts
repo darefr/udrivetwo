@@ -60,16 +60,16 @@ const pages = {
     'Read the rules for using the U Drive website, including rental estimates, availability, content ownership, liability and the laws that apply to website use.',
   ],
   '/sign-in': [
-    'Traveller Sign-In Preview',
-    'Preview the U Drive traveller sign-in form using sample details only. No session is created, and you can compare rental cars or request a quote as a guest.',
+    'Traveller Sign-In',
+    'Sign in to your U Drive account to view upcoming rentals, check booking status, manage contact details and message the Kathmandu rental desk about your trip.',
   ],
   '/create-account': [
-    'Traveller Registration Preview',
-    'Explore the U Drive registration preview without sending credentials or creating an account. Plan a Nepal car rental and request a quote without registering.',
+    'Create a Traveller Account',
+    'Create a U Drive traveller account to track car rental requests, save contact details, receive booking updates and reach the Kathmandu rental team for support.',
   ],
   '/forgot-password': [
-    'Password Recovery Preview',
-    'Preview password recovery for U Drive traveller accounts. No reset email is sent by this site; the rental desk and guest booking planner are still available.',
+    'Recover Your Traveller Account',
+    'Request a single-use password reset link for your U Drive account. Restore access to bookings, profile details and messages from the Kathmandu rental desk.',
   ],
 } as const
 
@@ -146,7 +146,7 @@ export function vehicleMetadata(car: Vehicle) {
   return metadataFor(
     `/fleet/${car.slug}`,
     `${car.name} Rental in Kathmandu`,
-    `Rent the ${car.name} in Kathmandu from ${money(car.dailyRate)} per day. Explore photos, seating and rental options, then confirm your dates and pickup point with U Drive.`,
+    `Rent the ${car.name} in Kathmandu from ${money(car.dailyRate, car.currency)} per day. Explore photos, seating and rental options, then confirm your dates and pickup point with U Drive.`,
   )
 }
 export function destinationMetadata(destination: Destination) {

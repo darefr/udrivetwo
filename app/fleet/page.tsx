@@ -3,6 +3,8 @@ import { DeskQuestions, PageIntro } from '@/components/shared'
 import { RentalSearch } from '@/components/rental-search'
 import { FleetResults } from '@/components/fleet-results'
 import { CTA } from '@/components/footer'
+import { catalog } from '@/lib/platform/catalog'
+import { query as dbQuery } from '@/lib/platform/database'
 import { readTrip, type Query } from '@/lib/trip'
 
 import { pageMetadata } from '@/lib/site-metadata'
@@ -13,7 +15,17 @@ export default async function FleetPage({
   searchParams: Promise<Query>
 }) {
   const query = await searchParams
-  const trip = readTrip(query)
+  const data = await catalog()
+  const trip = readTrip(query, data.fleet, data.pickupLocations)
+  const blocked =
+    trip.start && trip.end
+      ? (
+          await dbQuery(
+            'SELECT DISTINCT vehicle_id FROM occupied_days WHERE day>=$1::date AND day<$2::date',
+            [trip.start, trip.end],
+          )
+        ).map((r) => r.vehicle_id as string)
+      : []
   return (
     <>
       <PageIntro
@@ -28,6 +40,7 @@ export default async function FleetPage({
         </div>
       </div>
       <FleetResults
+        blocked={blocked}
         key={JSON.stringify(trip)}
         trip={trip}
         searched={Object.keys(trip).some((key) => Boolean(query[key]))}

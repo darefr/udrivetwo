@@ -1,19 +1,21 @@
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight, Check, MapPin } from 'lucide-react'
-import { faqs, fleet, modeLabel, money, type Vehicle } from '@/lib/rental-data'
+import { faqs, modeLabel, money, type Vehicle } from '@/lib/rental-data'
 import { tripHref, type Trip } from '@/lib/trip'
 import { Breadcrumbs, FAQ, SectionHeading } from './shared'
 import { VehicleGallery } from './vehicle-gallery'
 import { StructuredData } from './structured-data'
 import { VehicleCard } from './vehicle-card'
 
-export function VehicleDetail({
+import { catalog } from '@/lib/platform/catalog'
+export async function VehicleDetail({
   vehicle,
   trip,
 }: {
   vehicle: Vehicle
   trip: Trip
 }) {
+  const { fleet } = await catalog()
   return (
     <>
       <StructuredData vehicle={vehicle} />
@@ -33,7 +35,8 @@ export function VehicleDetail({
             <div className="product-rate">
               <span>Daily rental rate</span>
               <p>
-                <strong>{money(vehicle.dailyRate)}</strong> / day
+                <strong>{money(vehicle.dailyRate, vehicle.currency)}</strong> /
+                day
               </p>
             </div>
             <p className="product-overview">{vehicle.overview}</p>
@@ -85,7 +88,10 @@ export function VehicleDetail({
           <dl className="fact-list">
             {[
               ['Vehicle', vehicle.name],
-              ['Daily vehicle rate', money(vehicle.dailyRate)],
+              [
+                'Daily vehicle rate',
+                money(vehicle.dailyRate, vehicle.currency),
+              ],
               ['Body style', vehicle.bodyType],
               ['Seats', String(vehicle.seats)],
               ['Transmission', vehicle.transmission],

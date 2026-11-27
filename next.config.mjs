@@ -1,9 +1,34 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
+  serverExternalPackages: ['@electric-sql/pglite', 'pg', 'nodemailer', 'sharp'],
+  outputFileTracingIncludes: { '/*': ['./db/*.sql'] },
+  outputFileTracingExcludes: {
+    '/*': [
+      './.udrive/**/*',
+      './.udrive-test*/**/*',
+      './.env*',
+      './test-results/**/*',
+      './tests/**/*',
+    ],
+  },
+  experimental: { cpus: 2 },
   poweredByHeader: false,
   async headers() {
     return [
+      ...[
+        '/account/:path*',
+        '/admin/:path*',
+        '/api/:path*',
+        '/reset-password',
+        '/verify-email',
+      ].map((source) => ({
+        source,
+        headers: [
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      })),
       {
         source: '/images/:path*',
         headers: [

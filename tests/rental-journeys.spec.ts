@@ -90,7 +90,7 @@ test('search, dates, recalculation, seven steps, review and WhatsApp handoff', a
     'Kathmandu airport',
   )
   await expect(page.locator('.review-details')).toContainText('5 days')
-  await page.getByRole('button', { name: 'Continue to contact' }).click()
+  await page.getByRole('button', { name: 'Submit booking request' }).click()
   await expect(page.locator('.rental-planner')).toHaveAttribute(
     'data-step',
     '7',
@@ -184,7 +184,7 @@ test('session chat, honest source, multilingual follow-up and rental handoff', a
   await ready(page)
   await page.getByRole('button', { name: 'Open U Drive AI assistant' }).click()
   const chat = page.getByRole('dialog', { name: 'U Drive Rental AI Assistant' })
-  await expect(chat).toContainText('Live AI not connected')
+  await expect(chat).toContainText('U Drive records')
   let release!: () => void
   const gate = new Promise<void>((resolve) => {
     release = resolve
@@ -251,7 +251,9 @@ test('assistant handles offline mode, unsupported voice and clearing history', a
   await expect(chat.locator('.voice-notice')).toContainText('not supported')
   await chat.getByRole('button', { name: 'Pickup in Pokhara?' }).click()
   await expect(chat).toContainText('Offline catalog guide')
-  await expect(chat.getByRole('log')).toContainText('in Pokhara')
+  await expect(chat.getByRole('log')).toContainText(
+    'cannot verify current prices',
+  )
   await chat.getByRole('button', { name: 'Clear chat', exact: true }).click()
   await chat.getByRole('button', { name: 'Clear', exact: true }).click()
   await expect(chat.getByRole('log')).not.toContainText('You:')
@@ -489,30 +491,39 @@ test('new roadbook route, rental-mode examples and feedback keep their context',
   ).toBeVisible()
 })
 
-test('account previews explain their limits and leave guest booking available', async ({
+test('real account sign-up, reload, sign-out and password sign-in', async ({
   page,
+  context,
 }) => {
-  for (const mode of ['sign-in', 'create-account']) {
-    await page.goto(`/${mode}`)
-    const form = page.locator('.auth-panel form[data-ready="true"]')
-    await expect(form).toBeVisible()
-    if (mode === 'create-account')
-      await form.getByLabel('Full name').fill('Sample Traveller')
-    await form.getByLabel('Email address').fill('traveller@example.com')
-    await form.getByLabel('Password', { exact: true }).fill('sample-only-value')
-    if (mode === 'create-account') {
-      await form
-        .getByLabel('Confirm password', { exact: true })
-        .fill('sample-only-value')
-      await form.getByRole('checkbox').check()
-    }
-    await form.locator('button[type="submit"]').click()
-    await expect(page.locator('.form-response')).toContainText('not connected')
-    await page
-      .getByRole('link', { name: 'Rent a car without an account' })
-      .click()
-    await expect(page).toHaveURL(/\/booking$/)
-  }
+  const address = `traveller-${crypto.randomUUID()}@example.test`,
+    password = crypto.randomUUID()
+  await page.goto('/create-account')
+  const form = page.locator('.auth-panel form[data-ready="true"]')
+  await expect(form).toBeVisible()
+  await form.getByLabel('Full name').fill('QA Traveller')
+  await form.getByLabel('Email address').fill(address)
+  await form.getByLabel('Password', { exact: true }).fill(password)
+  await form.getByLabel('Confirm password', { exact: true }).fill(password)
+  await form.getByRole('checkbox').check()
+  await form.locator('button[type="submit"]').click()
+  await expect(page).toHaveURL(/\/account$/)
+  await page.reload()
+  await expect(
+    page.getByRole('heading', { name: 'Welcome, QA.' }),
+  ).toBeVisible()
+  const cookie = (await context.cookies()).find(
+    (c) => c.name === 'udrive_session',
+  )
+  expect(cookie?.httpOnly).toBe(true)
+  expect(cookie?.secure).toBe(true)
+  await page.getByRole('button', { name: 'Sign out' }).click()
+  await expect(page).toHaveURL(/\/sign-in$/)
+  await page.goto('/account')
+  await expect(page).toHaveURL(/\/sign-in$/)
+  await form.getByLabel('Email address').fill(address)
+  await form.getByLabel('Password', { exact: true }).fill(password)
+  await form.locator('button[type="submit"]').click()
+  await expect(page).toHaveURL(/\/account$/)
 })
 
 test('reviewed contact enquiry routes to the same rental desk', async ({

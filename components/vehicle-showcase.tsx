@@ -9,12 +9,24 @@ import {
   Pause,
   Play,
 } from 'lucide-react'
-import { featuredVehicles as fleet, money } from '@/lib/rental-data'
+import { money } from '@/lib/rental-data'
+import { useRentalPlatform } from './platform-provider'
 
 const interval = 2800
 const counter = (n: number) => String(n).padStart(2, '0')
 
 export function VehicleShowcase({ children }: { children: ReactNode }) {
+  const { fleet: cars, currency } = useRentalPlatform()
+  const fleet = cars
+    .filter((v) => v.available && v.featured)
+    .map((v) => ({
+      ...v,
+      showcase: v.showcase ?? {
+        desktop: v.image,
+        mobile: v.image,
+        avif: undefined,
+      },
+    }))
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
   const [inView, setInView] = useState(false)
@@ -217,7 +229,7 @@ export function VehicleShowcase({ children }: { children: ReactNode }) {
             <span className="showcase-car-line">
               <strong>{vehicle.name}</strong>
               <span className="showcase-price">
-                {money(vehicle.dailyRate)} <small>/ day</small>
+                {money(vehicle.dailyRate, currency)} <small>/ day</small>
               </span>
               <ArrowUpRight size={15} />
             </span>

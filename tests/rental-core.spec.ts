@@ -27,7 +27,7 @@ const trip: Trip = {
 }
 const customer = {
   name: 'Example Traveller',
-  email: '',
+  email: 'traveller@example.test',
   phone: '+977 9800000000',
   message: 'Two bags.',
 }
@@ -60,9 +60,19 @@ test('real calendar days and validated trip links', () => {
 test('an estimate uses the selected catalog rate, never a driver fee guess', () => {
   for (const v of fleet) {
     const rows = Object.fromEntries(
-      enquiryRows({ ...trip, vehicle: v.slug }, hand, customer),
+      enquiryRows({ ...trip, vehicle: v.slug }, hand, customer, v, {
+        days: 5,
+        rate: v.dailyRate,
+        subtotal: v.dailyRate * 5,
+        total: v.dailyRate * 5,
+        delivery: 0,
+        additional: 0,
+        discount: 0,
+        currency: 'NPR',
+        driverQuoted: true,
+      }),
     )
-    expect(rows['Estimated vehicle total']).toBe(
+    expect(rows['Estimated total']).toBe(
       `NPR ${(v.dailyRate * 5).toLocaleString('en-US')}`,
     )
     expect(rows['Rental type']).toBe('With Driver')
@@ -75,7 +85,10 @@ test('an estimate uses the selected catalog rate, never a driver fee guess', () 
     )['Driver service'],
   ).toBeUndefined()
 })
-test('actionable field errors and optional email', () => {
+test('actionable field errors and required email', () => {
+  expect(
+    validateStep(4, trip, hand, { ...customer, email: '' }),
+  ).toHaveProperty('email')
   expect(validateStep(4, trip, hand, customer)).toEqual({})
   expect(
     validateStep(4, trip, hand, {

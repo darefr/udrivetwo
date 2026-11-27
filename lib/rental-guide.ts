@@ -1,8 +1,7 @@
 import {
   destinations,
   fleet,
-  getVehicle,
-  money,
+  money as formatMoney,
   type Vehicle,
 } from './rental-data'
 import type {
@@ -37,7 +36,7 @@ const modelText = (text: string) =>
     .replace(/एटो|अटो|एट्टो/g, 'atto')
     .replace(/नेक्सन|नेक्सोन/g, 'nexon')
     .replace(/\W/gu, '')
-function namedCar(text: string) {
+function namedCar(text: string, fleet: Vehicle[]) {
   const compact = modelText(text)
   return fleet.find((v) =>
     [
@@ -78,10 +77,12 @@ const cityAliases: Record<string, RegExp> = {
   nagarkot: /नगरकोट/,
 }
 
-export function catalogReply({
-  messages,
-  language: requested,
-}: AssistantRequest): AssistantReply {
+export function catalogReply(
+  { messages, language: requested }: AssistantRequest,
+  source = { fleet, destinations, currency: 'NPR' },
+): AssistantReply {
+  const { fleet: carsInCatalog, destinations: areas } = source
+  const money = (value: number) => formatMoney(value, source.currency)
   const text = normalize(messages.at(-1)?.text ?? '')
   const prior = messages
     .slice(0, -1)
@@ -103,9 +104,9 @@ export function catalogReply({
     context,
     action,
   })
-  const named = namedCar(text)
+  const named = namedCar(text, carsInCatalog)
   if (named) context.vehicle = named.slug
-  const city = destinations.find(
+  const city = areas.find(
     (d) =>
       text.includes(d.name.toLowerCase()) || cityAliases[d.slug]?.test(text),
   )
@@ -133,7 +134,7 @@ export function catalogReply({
     )
   if (requestedDays) context.days = requestedDays
   const days = context.days
-  const cars = fleet
+  const cars = carsInCatalog
     .filter(
       (v) =>
         v.availability !== 'Unavailable' &&
@@ -196,7 +197,7 @@ export function catalogReply({
   )
     return answer(
       say(
-        'Choose your vehicle and rental type, add the handover location and dates, then enter your contact details. Review the estimate and open WhatsApp to send the enquiry. No account or payment is needed. Only the rental desk can confirm a reservation.',
+        'Choose your vehicle and rental type, add the handover location and dates, then enter your contact details. Review the estimate and select Submit booking request to receive a reference. WhatsApp is optional. No account or payment is needed. Only the rental desk can confirm a reservation.',
         'गाडी र भाडाको प्रकार छान्नुहोस्। स्थान, मिति र सम्पर्क विवरण राखेर अनुमान हेर्नुहोस्। त्यसपछि WhatsApp मा अनुरोध पठाउनुहोस्। खाता वा अग्रिम भुक्तानी चाहिँदैन। बुकिङ टोलीले पुष्टि गर्छ।',
         'Gadi ra rental type chhannuhos, location, dates ra contact details rakhnu hos. Estimate herera WhatsApp ma enquiry send garnuhos. Account chahidaina; booking team le confirm garchha.',
       ),
@@ -269,7 +270,7 @@ export function catalogReply({
           ),
     )
   if (named || pricing || requestedDays) {
-    const car = named ?? getVehicle(context.vehicle)
+    const car = named ?? carsInCatalog.find((v) => v.slug === context.vehicle)
     if (car)
       return answer(
         join(

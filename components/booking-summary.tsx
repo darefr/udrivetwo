@@ -8,7 +8,11 @@ export function BookingSummary({
   trip,
   delivery,
   returnPoint,
+  quote,
+  unavailable,
 }: {
+  quote?: import('@/lib/platform/contracts').Quote
+  unavailable?: boolean
   vehicle: Vehicle
   trip: Trip
   delivery: string
@@ -53,7 +57,7 @@ export function BookingSummary({
           </div>
           <div>
             <dt>Daily rate</dt>
-            <dd>{money(vehicle.dailyRate)}</dd>
+            <dd>{money(quote?.rate ?? vehicle.dailyRate, quote?.currency)}</dd>
           </div>
           <div>
             <dt>Rental duration</dt>
@@ -68,19 +72,28 @@ export function BookingSummary({
           {trip.mode === 'with-driver' && (
             <div>
               <dt>Driver service</dt>
-              <dd>To be agreed</dd>
+              <dd>
+                {quote && !quote.driverQuoted ? 'Included' : 'To be agreed'}
+              </dd>
             </div>
           )}
         </dl>
         <div className="estimated-total" aria-live="polite">
-          <span>Estimated base total</span>
+          <span>Estimated total</span>
           <strong>
-            {days ? money(days * vehicle.dailyRate) : 'Select dates'}
+            {quote
+              ? money(quote.total, quote.currency)
+              : unavailable
+                ? 'Not available'
+                : days
+                  ? 'Checking…'
+                  : 'Select dates'}
           </strong>
         </div>
         <p className="fine-print">
-          Vehicle rental only. Driver service, delivery, and other applicable
-          charges are confirmed separately. This estimate is not a reservation.
+          Includes the configured charges and discounts shown at review. Any
+          unquoted driver supplement is agreed before confirmation. This
+          estimate is not a reservation.
         </p>
       </div>
     </aside>

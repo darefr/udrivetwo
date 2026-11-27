@@ -1,11 +1,7 @@
-import {
-  readAssistantRequest,
-  type RentalResponder,
-} from '@/lib/rental-assistant'
-import { catalogReply } from '@/lib/rental-guide'
+import { readAssistantRequest } from '@/lib/rental-assistant'
 
-// A future server-side model adapter implements the same contract. The current source is always disclosed.
-const responder: RentalResponder = catalogReply
+import { rentalResponder as responder } from '@/lib/platform/assistant'
+import { rateLimit, clientKey, failure } from '@/lib/platform/security'
 const headers = {
   'Cache-Control': 'no-store',
   'X-Content-Type-Options': 'nosniff',
@@ -44,9 +40,10 @@ export async function POST(request: Request) {
         400,
       )
     try {
+      await rateLimit('assistant:' + clientKey(request), 45, 600)
       return Response.json(await responder(input, request.signal), { headers })
-    } catch {
-      return Response.json(catalogReply(input), { headers })
+    } catch (e) {
+      return failure(e)
     }
   } catch {
     return error('The conversation could not be read.', 400)

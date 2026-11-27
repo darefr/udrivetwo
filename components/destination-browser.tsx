@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { destinations } from '@/lib/rental-data'
 import { DestinationCard } from './destination-card'
 
 import { useInteractive } from '@/lib/use-interactive'
 
+import { useRentalPlatform } from './platform-provider'
 export function DestinationBrowser() {
+  const { destinations } = useRentalPlatform()
   const ready = useInteractive()
   const [filter, setFilter] = useState('All destinations')
   const filtered = destinations.filter(

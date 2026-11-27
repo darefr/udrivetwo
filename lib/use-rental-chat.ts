@@ -12,8 +12,10 @@ import {
   type ChatTurn,
 } from './rental-assistant'
 
-const sessionKey = 'udrive:rental-chat:v1'
+import { useRentalPlatform } from '@/components/platform-provider'
 export function useRentalChat() {
+  const { user } = useRentalPlatform()
+  const sessionKey = `udrive:rental-chat:v2:${user?.id ?? 'guest'}`
   const [turns, setTurns] = useState<ChatTurn[]>([])
   const [language, setLanguage] = useState<ChatLanguage>('auto')
   const [draft, setDraft] = useState('')

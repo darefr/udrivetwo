@@ -23,6 +23,7 @@ export type Vehicle = {
   slug: string
   name: string
   dailyRate: number
+  currency?: string
   image: string
   gallery: { image: string; label: string }[]
   showcase?: {
@@ -172,8 +173,8 @@ export const rentalModes = [
   { value: 'with-driver', label: 'With Driver' },
 ] as const
 export type RentalMode = (typeof rentalModes)[number]['value']
-export const money = (value: number) =>
-  `NPR ${new Intl.NumberFormat('en-US').format(value)}`
+export const money = (value: number, currency = 'NPR') =>
+  `${currency} ${new Intl.NumberFormat('en-US').format(value)}`
 export const getVehicle = (slug?: string) => fleet.find((v) => v.slug === slug)
 export const modeLabel = (mode: string) =>
   rentalModes.find((m) => m.value === mode)?.label ?? 'Self Drive'
@@ -369,7 +370,7 @@ export const faqs: FAQItem[] = [
     category: 'Booking',
     question: 'Does a booking request reserve a vehicle?',
     answer:
-      'Not yet. Review your rental details, then send the prepared enquiry to U Drive on WhatsApp. The team will confirm availability, the final price, and handover arrangements before you commit.',
+      'Submitting a request checks the calendar and holds those dates while the desk reviews it. Keep your booking reference. Your rental is confirmed only when the desk changes its status to Confirmed.',
   },
   {
     category: 'Rentals',
@@ -399,7 +400,7 @@ export const faqs: FAQItem[] = [
     category: 'Pricing',
     question: 'When do I pay, and is there a deposit?',
     answer:
-      'No payment is taken on this website. Ask the desk for the deposit, payment method, insurance cover and any extra charges in writing before you agree to a rental. Do not enter card details in your enquiry.',
+      'Submitting a request does not charge you. The desk confirms deposit and payment terms. If online payments are enabled, confirmed rentals can open a secure hosted checkout from My Bookings. Never enter card details in an enquiry.',
   },
   {
     category: 'Booking',

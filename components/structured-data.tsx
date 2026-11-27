@@ -1,5 +1,7 @@
 import { business, type Vehicle } from '@/lib/rental-data'
-export function StructuredData({ vehicle }: { vehicle?: Vehicle }) {
+import { settings } from '@/lib/platform/database'
+export async function StructuredData({ vehicle }: { vehicle?: Vehicle }) {
+  const cfg = await settings()
   const data = vehicle
     ? {
         '@context': 'https://schema.org',
@@ -9,12 +11,12 @@ export function StructuredData({ vehicle }: { vehicle?: Vehicle }) {
         image: vehicle.image,
         offers: {
           '@type': 'Offer',
-          priceCurrency: 'NPR',
+          priceCurrency: cfg.currency,
           price: vehicle.dailyRate,
           priceSpecification: {
             '@type': 'UnitPriceSpecification',
             price: vehicle.dailyRate,
-            priceCurrency: 'NPR',
+            priceCurrency: cfg.currency,
             unitCode: 'DAY',
             unitText: 'day',
           },
@@ -23,8 +25,8 @@ export function StructuredData({ vehicle }: { vehicle?: Vehicle }) {
     : {
         '@context': 'https://schema.org',
         '@type': 'AutoRental',
-        name: business.name,
-        telephone: business.whatsappNumber,
+        name: cfg.company,
+        telephone: cfg.whatsapp,
         description: business.description,
         address: {
           '@type': 'PostalAddress',
@@ -32,7 +34,7 @@ export function StructuredData({ vehicle }: { vehicle?: Vehicle }) {
           addressCountry: 'NP',
         },
         areaServed: { '@type': 'Country', name: 'Nepal' },
-        currenciesAccepted: 'NPR',
+        currenciesAccepted: cfg.currency,
       }
   return (
     <script

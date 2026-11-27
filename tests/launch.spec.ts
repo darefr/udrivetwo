@@ -174,7 +174,7 @@ test('consent gates the SDK, fixed conversion names and clean paths; withdrawal 
   await expect
     .poll(() => emissions.map((e) => e.name))
     .toContain('Booking CTA clicked')
-  const start = addRentalDays(todayInNepal(), 12)
+  const start = addRentalDays(todayInNepal(), 32)
   await page.goto(
     `/booking?vehicle=byd-atto-1&start=${start}&end=${addRentalDays(start, 2)}`,
   )
@@ -183,8 +183,9 @@ test('consent gates the SDK, fixed conversion names and clean paths; withdrawal 
     await page.getByRole('button', { name: 'Continue', exact: true }).click()
   await page.locator('#booking-name').fill('QA Traveller')
   await page.locator('#booking-phone').fill('+977 9810000000')
+  await page.locator('#booking-email').fill('qa@example.test')
   await page.getByRole('button', { name: 'Review rental', exact: true }).click()
-  await page.getByRole('button', { name: 'Continue to contact' }).click()
+  await page.getByRole('button', { name: 'Submit booking request' }).click()
   await expect
     .poll(() => emissions.map((e) => e.name))
     .toContain('Rental enquiry prepared')
@@ -248,7 +249,7 @@ test('keyboard FAQ, narrow-screen CTA and password reset preview', async ({
   await form.getByLabel('Email address').fill('sample@example.com')
   await form.getByRole('button', { name: 'Request password reset' }).click()
   await expect(page.getByRole('status')).toContainText(
-    'No reset email was sent',
+    'If this address has an account',
   )
 })
 

@@ -15,17 +15,13 @@ import {
   X,
 } from 'lucide-react'
 import { Brand } from './brand'
-import {
-  business,
-  destinations,
-  featuredVehicles,
-  money,
-  navLinks,
-  whatsAppContact,
-} from '@/lib/rental-data'
+import { money, navLinks } from '@/lib/rental-data'
 import { cn } from '@/lib/utils'
 
 function MobileMenu({ onClose }: { onClose: () => void }) {
+  const { user, fleet, destinations } = useRentalPlatform()
+  const whatsAppContact = useContact()
+  const featuredVehicles = fleet.filter((v) => v.popular)
   const dialog = useRef<HTMLDialogElement>(null)
   const pathname = usePathname()
   useEffect(() => {
@@ -84,16 +80,31 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
           </div>
         </nav>
         <nav className="drawer-account" aria-label="Your U Drive account">
-          <Link onClick={onClose} href="/sign-in" className="action primary">
+          <Link
+            onClick={onClose}
+            href={user ? '/account' : '/sign-in'}
+            className="action primary"
+          >
             <UserRound size={16} />
-            Sign In
+            {user ? 'My account' : 'Sign In'}
           </Link>
           <Link
             onClick={onClose}
-            href="/create-account"
+            href={
+              user
+                ? user.role === 'CUSTOMER'
+                  ? '/account?tab=bookings'
+                  : '/admin'
+                : '/create-account'
+            }
             className="action outline"
           >
-            Create Account <ArrowRight size={15} />
+            {user
+              ? user.role === 'CUSTOMER'
+                ? 'My bookings'
+                : 'Rental desk'
+              : 'Create Account'}{' '}
+            <ArrowRight size={15} />
           </Link>
         </nav>
         <section className="drawer-booking" aria-label="Quick booking">
@@ -122,7 +133,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
                 />
                 <span>
                   <strong>{car.name}</strong>
-                  <small>{money(car.dailyRate)} / day</small>
+                  <small>{money(car.dailyRate, car.currency)} / day</small>
                 </span>
                 <ArrowUpRight size={15} />
               </Link>
@@ -161,7 +172,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
           >
             <img src="/images/whatsapp.svg" alt="" width={19} height={19} />
             <span>
-              WhatsApp U Drive<small>{business.whatsappNumber}</small>
+              WhatsApp U Drive<small>{whatsAppContact.number}</small>
             </span>
             <ArrowUpRight size={15} />
           </a>
@@ -179,7 +190,9 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
   )
 }
 
+import { useRentalPlatform, useContact } from './platform-provider'
 export function Navbar() {
+  const { user } = useRentalPlatform()
   const pathname = usePathname()
   const [mobile, setMobile] = useState(false)
   const [rental, setRental] = useState(false)
@@ -307,9 +320,23 @@ export function Navbar() {
             )}
           </nav>
           <div className="nav-actions">
-            <Link className="sign-in-link" href="/sign-in" prefetch={false}>
+            <Link
+              className="sign-in-link"
+              href={
+                user
+                  ? user.role === 'CUSTOMER'
+                    ? '/account'
+                    : '/admin'
+                  : '/sign-in'
+              }
+              prefetch={false}
+            >
               <UserRound size={16} />
-              Sign In
+              {user
+                ? user.role === 'CUSTOMER'
+                  ? 'My account'
+                  : 'Rental desk'
+                : 'Sign In'}
             </Link>
             <Link className="action primary nav-book" href="/booking">
               Rent Now

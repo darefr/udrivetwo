@@ -62,7 +62,7 @@ export function VehicleCard({
           )}
         </div>
         <p className="car-price">
-          <strong>{money(vehicle.dailyRate)}</strong>
+          <strong>{money(vehicle.dailyRate, vehicle.currency)}</strong>
           <span> / day</span>
         </p>
         <div className="vehicle-actions">

@@ -3,20 +3,18 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, MapPin, Route, Signpost } from 'lucide-react'
-import { destinations } from '@/lib/rental-data'
 import { Breadcrumbs, SectionHeading } from '@/components/shared'
 import { DestinationCard } from '@/components/destination-card'
 import { destinationMetadata, missingMetadata } from '@/lib/site-metadata'
 
-export const dynamicParams = false
-export const generateStaticParams = () =>
-  destinations.map((d) => ({ slug: d.slug }))
+import { catalog } from '@/lib/platform/catalog'
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
+  const { destinations } = await catalog()
   const destination = destinations.find((item) => item.slug === slug)
   return destination ? destinationMetadata(destination) : missingMetadata
 }
@@ -26,6 +24,7 @@ export default async function DestinationPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  const { destinations } = await catalog()
   const d = destinations.find((d) => d.slug === slug)
   if (!d) notFound()
   return (

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { fleet, rentalModes } from '@/lib/rental-data'
+import { rentalModes } from '@/lib/rental-data'
+import { useRentalPlatform } from './platform-provider'
 
 function Count({ value }: { value: number }) {
   const ref = useRef<HTMLSpanElement>(null)
@@ -40,6 +41,7 @@ function Count({ value }: { value: number }) {
   )
 }
 export function Stats() {
+  const { fleet } = useRentalPlatform()
   return (
     <div className="stats">
       <div>

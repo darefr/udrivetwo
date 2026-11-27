@@ -11,14 +11,9 @@ import {
   UserRound,
 } from 'lucide-react'
 import {
-  business,
-  fleet,
-  getVehicle,
   modeLabel,
   money,
-  pickupLocations,
   rentalModes,
-  whatsappHref,
   whatsAppContact,
 } from '@/lib/rental-data'
 import {
@@ -49,10 +44,20 @@ import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
 import { Wheel } from './brand'
 
-const rentable = fleet.filter(
-  (v) => v.availability !== 'Unavailable' && v.modes.length,
-)
+import { api, useRentalPlatform } from './platform-provider'
+import useSWR from 'swr'
+import type { Quote } from '@/lib/platform/contracts'
 
+function RentalPolicyNote() {
+  const { policies, cancellation } = useRentalPlatform()
+  return (
+    <details className="step-help">
+      <summary>Rental and cancellation policies</summary>
+      <p>{policies}</p>
+      <p>{cancellation}</p>
+    </details>
+  )
+}
 export function BookingForm({
   initial,
   destination,
@@ -62,6 +67,17 @@ export function BookingForm({
   destination?: string
   plannedDays?: number
 }) {
+  const { fleet, pickupLocations, user, whatsapp, currency } =
+    useRentalPlatform()
+  const rentable = fleet.filter((v) => v.available && v.modes.length)
+  const getVehicle = (slug?: string) => fleet.find((v) => v.slug === slug)
+  const [offer, setOffer] = useState('')
+  const [waConsent, setWaConsent] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [receipt, setReceipt] = useState<{ id: string; quote: Quote } | null>(
+    null,
+  )
+  const [requestKey] = useState(() => crypto.randomUUID())
   const [trip, setTrip] = useState<Trip>(() => {
     const car =
       rentable.find((v) => v.slug === initial.vehicle) ??
@@ -82,9 +98,9 @@ export function BookingForm({
     returnPoint: '',
   })
   const [customer, setCustomer] = useState<Customer>({
-    name: '',
-    phone: '',
-    email: '',
+    name: user?.name ?? '',
+    phone: user?.phone ?? '',
+    email: user?.email ?? '',
     message: destination
       ? `I would like to plan a trip to ${destination}.`
       : '',
@@ -96,8 +112,22 @@ export function BookingForm({
   const ready = useInteractive()
   const car = getVehicle(trip.vehicle)
   const days = daysBetween(trip.start, trip.end)
-  const rows = enquiryRows(trip, handover, customer)
-  const message = enquiryText(rows)
+  const quoteKey =
+    days && !receipt
+      ? `quote?${new URLSearchParams({ ...trip, delivery: handover.delivery, offer }).toString()}`
+      : null
+  const {
+    data: liveQuote,
+    error: quoteError,
+    mutate: refreshQuote,
+  } = useSWR<Quote>(quoteKey, (key: string) => api<Quote>(key), {
+    shouldRetryOnError: false,
+  })
+  const quote = receipt?.quote ?? liveQuote
+  const rows = enquiryRows(trip, handover, customer, car, quote)
+  const message =
+    (receipt ? `Booking request ${receipt.id} · PENDING\n` : '') +
+    enquiryText(rows)
   const attrs = (key: string) => ({
     id: `booking-${key}`,
     'aria-invalid': !!errors[key],
@@ -150,7 +180,15 @@ export function BookingForm({
   const go = (target: number) => {
     if (target > step)
       for (let n = 0; n < target; n++) {
-        const issues = validateStep(n, trip, handover, customer)
+        const issues = validateStep(
+          n,
+          trip,
+          handover,
+          customer,
+          undefined,
+          fleet,
+          pickupLocations,
+        )
         const first = Object.keys(issues)[0]
         if (first) {
           setStep(n)
@@ -166,9 +204,47 @@ export function BookingForm({
     setReached((old) => Math.max(old, target))
     focus(`rental-step-${target}`)
   }
-  const advance = (e: FormEvent) => {
+  const advance = async (e: FormEvent) => {
     e.preventDefault()
-    if (step < 6) go(step + 1)
+    if (busy || receipt) return
+    if (step !== 5) {
+      if (step === 3 && validDatesButUnavailable()) return
+      go(step + 1)
+      return
+    }
+    if (!quote) {
+      setErrors({
+        submit:
+          quoteError?.message ||
+          'Wait for the current estimate before submitting.',
+      })
+      return
+    }
+    setBusy(true)
+    setErrors({})
+    try {
+      const saved = await api<{ id: string; quote: Quote }>('bookings', {
+        ...trip,
+        ...customer,
+        delivery: handover.delivery,
+        address: handover.address,
+        returnPoint: handover.differentReturn ? handover.returnPoint : '',
+        offer,
+        waConsent,
+        requestKey,
+        expectedTotal: quote.total,
+      })
+      setReceipt(saved)
+      go(6)
+    } catch (e) {
+      setErrors({ submit: (e as Error).message })
+      void refreshQuote()
+    } finally {
+      setBusy(false)
+    }
+  }
+  function validDatesButUnavailable() {
+    return !!days && !!quoteError
   }
   if (!car)
     return (
@@ -212,7 +288,7 @@ export function BookingForm({
         >
           {rentable.map((v) => (
             <option key={v.slug} value={v.slug}>
-              {v.name} — {money(v.dailyRate)} / day
+              {v.name} — {money(v.dailyRate, currency)} / day
             </option>
           ))}
         </select>
@@ -252,7 +328,9 @@ export function BookingForm({
       <p className="step-help">
         {trip.mode === 'self-drive'
           ? 'Take the wheel yourself. The team will confirm licence and deposit requirements.'
-          : 'A chauffeur is requested. The vehicle base rate stays the same; the driver fee is quoted for your route.'}
+          : car.driver_rate
+            ? `Chauffeur-inclusive rate: ${money(car.driver_rate, currency)} per day.`
+            : 'A chauffeur is requested. The driver supplement will be confirmed by the desk.'}
       </p>
     </FieldSet>,
     <FieldGroup key="location" className="form-grid">
@@ -358,7 +436,10 @@ export function BookingForm({
       <p className="step-help field-wide" aria-live="polite">
         {dateNote ||
           (days
-            ? `${days} ${days === 1 ? 'day' : 'days'} at ${money(car.dailyRate)} per day · ${money(days * car.dailyRate)} vehicle total.`
+            ? (quoteError?.message ??
+              (quote
+                ? `${days} ${days === 1 ? 'day' : 'days'} at ${money(quote.rate, quote.currency)} per day · ${money(quote.total, quote.currency)} estimated total.`
+                : 'Checking price and availability…'))
             : plannedDays
               ? `For your ${plannedDays}-day plan, choose pickup and we will suggest a return date. You can change it.`
               : 'The rental is counted in days between pickup and return. Minimum one day.')}
@@ -402,7 +483,7 @@ export function BookingForm({
       <FormField
         id="booking-email"
         label="Email address"
-        optional
+        required
         error={errors.email}
       >
         <Input
@@ -415,6 +496,22 @@ export function BookingForm({
           onChange={(e) => contact('email', e.target.value)}
         />
       </FormField>
+      <FormField id="booking-offer" label="Offer code" optional>
+        <Input
+          id="booking-offer"
+          maxLength={30}
+          value={offer}
+          onChange={(e) => setOffer(e.target.value.toUpperCase())}
+        />
+      </FormField>
+      <label className="account-check field-wide">
+        <input
+          type="checkbox"
+          checked={waConsent}
+          onChange={(e) => setWaConsent(e.target.checked)}
+        />
+        Send my booking updates to my phone on WhatsApp.
+      </label>
       <FormField id="booking-note" label="Trip notes" optional wide>
         <Textarea
           id="booking-note"
@@ -426,6 +523,7 @@ export function BookingForm({
       </FormField>
     </FieldGroup>,
     <div key="review">
+      <RentalPolicyNote />
       <p className="step-help">
         Check the details below. Use the edit controls above to change a choice
         before sharing it.
@@ -440,24 +538,33 @@ export function BookingForm({
       </dl>
     </div>,
     <div key="handoff" className="rental-handoff">
-      <h3>Your enquiry is ready.</h3>
+      <h3>Your booking request is in.</h3>
       <p>
-        Open WhatsApp, review the prepared message, then press Send to contact
-        the Kathmandu rental desk.
+        <strong>{receipt?.id}</strong> · Pending confirmation
+      </p>
+      <p>
+        The desk has your request. Keep this reference or continue the
+        conversation on WhatsApp.
       </p>
       <a
+        className="text-link"
+        href={user ? '/account?tab=bookings' : '/create-account'}
+      >
+        {user ? 'View my bookings' : 'Create an account to track this request'}
+      </a>
+      <a
         className="action primary"
-        href={whatsappHref(message)}
+        href={`https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`}
         target="_blank"
         rel="noopener noreferrer"
       >
         <img src="/images/whatsapp.svg" alt="" width={18} height={18} />
         Open WhatsApp <ArrowUpRight size={15} />
       </a>
-      <p className="handoff-number">U Drive · {business.whatsappNumber}</p>
+      <p className="handoff-number">U Drive · {whatsapp}</p>
       <PreviewNote>
-        No reservation or payment has been made. The team will confirm your
-        dates, total price, and handover in the chat.
+        Your dates are held for review. No payment has been taken. A confirmed
+        rental requires approval from U Drive.
       </PreviewNote>
       <button
         className="text-link"
@@ -508,7 +615,7 @@ export function BookingForm({
                   type="button"
                   id={`rental-step-${i}`}
                   onClick={() => go(i)}
-                  disabled={i > reached}
+                  disabled={busy || !!receipt || i > reached}
                   aria-expanded={i === step}
                   aria-current={i === step ? 'step' : undefined}
                   aria-controls={`step-body-${i}`}
@@ -531,6 +638,11 @@ export function BookingForm({
                 {i === step && (
                   <div className="planner-step-body">
                     {panels[i]}
+                    {(errors.submit || (i === 5 && quoteError)) && (
+                      <p role="alert" className="form-error">
+                        {errors.submit || quoteError.message}
+                      </p>
+                    )}
                     {i < 6 && (
                       <div className="planner-actions">
                         {i > 0 && (
@@ -546,12 +658,18 @@ export function BookingForm({
                         <button
                           className="action primary"
                           type="submit"
-                          disabled={!ready}
+                          disabled={
+                            !ready ||
+                            busy ||
+                            (i === 5 && (!quote || !!quoteError))
+                          }
                         >
                           {i === 4
                             ? 'Review rental'
                             : i === 5
-                              ? 'Continue to contact'
+                              ? busy
+                                ? 'Submitting…'
+                                : 'Submit booking request'
                               : 'Continue'}
                           <ArrowRight size={15} />
                         </button>
@@ -566,6 +684,8 @@ export function BookingForm({
         <BookingSummary
           trip={trip}
           vehicle={car}
+          quote={quote}
+          unavailable={!!quoteError}
           delivery={handover.delivery}
           returnPoint={handover.differentReturn ? handover.returnPoint : ''}
         />

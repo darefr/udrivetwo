@@ -7,6 +7,7 @@ import { FormField } from './form-parts'
 import { FieldGroup, FieldSeparator } from './ui/field'
 import { Input } from './ui/input'
 import { Breadcrumbs } from './shared'
+import { api, useRentalPlatform } from './platform-provider'
 import { useInteractive } from '@/lib/use-interactive'
 
 type AuthMode = 'sign-in' | 'create-account' | 'forgot-password'
@@ -29,15 +30,15 @@ function PasswordField({
           name={id}
           type={show ? 'text' : 'password'}
           required
-          minLength={create ? 8 : 1}
+          minLength={create ? 10 : 1}
           maxLength={128}
-          autoComplete="off"
+          autoComplete={create ? 'new-password' : 'current-password'}
           placeholder={
             id === 'confirm-password'
-              ? 'Re-enter your sample password'
+              ? 'Re-enter your password'
               : create
-                ? 'At least 8 characters'
-                : 'Enter a sample password'
+                ? 'At least 10 characters'
+                : 'Enter a password'
           }
         />
         <button
@@ -58,6 +59,12 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const reset = mode === 'forgot-password'
   const ready = useInteractive()
   const [message, setMessage] = useState('')
+  useEffect(() => {
+    if (new URLSearchParams(location.search).has('providerError'))
+      setMessage(
+        'Social sign-in could not be completed. Use your original sign-in method or continue with email.',
+      )
+  }, [])
   const status = useRef<HTMLParagraphElement>(null)
   useEffect(() => {
     if (message) status.current?.focus()
@@ -73,7 +80,9 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       ? 'Forgot Password'
       : 'Sign In'
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const { social } = useRentalPlatform()
+  const [busy, setBusy] = useState(false)
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const data = new FormData(form)
@@ -92,18 +101,37 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     if (create && data.get('password') !== data.get('confirm-password')) {
       invalid(
         'confirm-password',
-        'Your passwords do not match. Enter the same sample password in both fields.',
+        'Your passwords do not match. Enter the same password in both fields.',
       )
       return
     }
-    form.reset()
-    setMessage(
-      reset
-        ? 'Password recovery is not connected. No reset email was sent.'
-        : create
-          ? 'Registration is not connected. No account was created and no credentials were sent.'
-          : 'Sign-in is not connected. No credentials were sent and no session was created.',
-    )
+    setBusy(true)
+    setMessage('')
+    try {
+      const result = await api(
+        `auth/${reset ? 'forgot' : create ? 'register' : 'login'}`,
+        reset
+          ? { email: data.get('email') }
+          : create
+            ? {
+                name: data.get('name'),
+                email: data.get('email'),
+                password: data.get('password'),
+                terms: data.has('terms'),
+              }
+            : {
+                email: data.get('email'),
+                password: data.get('password'),
+                remember: data.has('remember'),
+              },
+      )
+      if (result.redirect) window.location.assign(result.redirect)
+      else setMessage(result.message)
+    } catch (e) {
+      setMessage((e as Error).message)
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -160,11 +188,21 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
                     key={provider}
                     disabled={!ready}
                     aria-describedby="account-preview"
-                    onClick={() =>
-                      setMessage(
-                        `${provider} sign-in is not connected. No credentials were requested or sent.`,
-                      )
-                    }
+                    onClick={async () => {
+                      const name = provider.toLowerCase() as keyof typeof social
+                      if (!social[name]) {
+                        setMessage(
+                          `${provider} sign-in is not enabled. You can continue with email and password.`,
+                        )
+                        return
+                      }
+                      try {
+                        const r = await api(`oauth/${name}`, {})
+                        window.location.assign(r.url)
+                      } catch (e) {
+                        setMessage((e as Error).message)
+                      }
+                    }}
                   >
                     <img
                       src={`/images/${provider.toLowerCase()}.svg`}
@@ -183,7 +221,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           )}
           {reset && (
             <p className="auth-reset-copy">
-              Enter a sample email address to preview password recovery.
+              Enter your account email to request a single-use password reset
+              link.
             </p>
           )}
           <form
@@ -207,7 +246,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
                 })
             }}
           >
-            <fieldset disabled={!ready}>
+            <fieldset disabled={!ready || busy}>
               <legend className="sr-only">{current} with email</legend>
               <FieldGroup className="auth-fields">
                 {create && (
@@ -311,8 +350,10 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <p className="account-preview" id="account-preview">
             <Info size={14} />
             <span>
-              Account preview. Authentication is not connected. Use sample
-              details only.
+              Your rental details are private. Social sign-in is subject to our{' '}
+              <Link href="/terms">terms</Link> and{' '}
+              <Link href="/privacy">privacy policy</Link>. U Drive will never
+              ask for your password on WhatsApp.
             </span>
           </p>
           <Link className="guest-link" href="/booking">

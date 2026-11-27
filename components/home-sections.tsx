@@ -9,26 +9,19 @@ import {
   ReceiptText,
   Route,
 } from 'lucide-react'
-import {
-  destinations,
-  faqs,
-  featuredVehicles,
-  journeySteps,
-  whatsAppContact,
-} from '@/lib/rental-data'
+import { faqs, journeySteps, whatsAppContact } from '@/lib/rental-data'
 import { FAQ, SectionHeading } from './shared'
 import { VehicleCard } from './vehicle-card'
 import { DestinationCard } from './destination-card'
 import { Stats } from './stats'
 import { CardRail } from './card-rail'
+import { catalog } from '@/lib/platform/catalog'
 
 const originalHighlights = new Set(['pokhara', 'nagarkot', 'chitwan'])
-const homeDestinations = [
-  ...destinations.filter((d) => originalHighlights.has(d.slug)),
-  ...destinations.filter((d) => !originalHighlights.has(d.slug)),
-]
-
-export function FeaturedFleet() {
+export async function FeaturedFleet() {
+  const featuredVehicles = (await catalog()).fleet.filter(
+    (v) => v.featured && v.available,
+  )
   return (
     <section className="section featured-section">
       <div className="wrap">
@@ -53,7 +46,12 @@ export function FeaturedFleet() {
     </section>
   )
 }
-export function ExploreNepal() {
+export async function ExploreNepal() {
+  const { destinations } = await catalog()
+  const homeDestinations = [
+    ...destinations.filter((d) => originalHighlights.has(d.slug)),
+    ...destinations.filter((d) => !originalHighlights.has(d.slug)),
+  ]
   return (
     <section className="section surface">
       <div className="wrap">

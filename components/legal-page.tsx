@@ -11,19 +11,19 @@ const notices = {
     ],
     [
       'Forms and downloads',
-      'The rental planner uses your name, phone number, optional email, trip details and any pickup address or notes you enter. The contact form uses your name, email, subject and message. Both prepare a draft in your browser. Open WhatsApp passes the reviewed details to WhatsApp in a pre-filled message addressed to U Drive; you decide whether to send it. A downloaded copy stays on your device.',
+      'Submitting a booking stores your contact details, dates, pickup instructions and estimate in the rental database. Sending a website enquiry stores your message for the desk. Staff with appropriate permissions can manage these records. Opening WhatsApp prepares a separate message; you decide whether to send it. Downloaded copies remain on your device.',
     ],
     [
-      'Account previews',
-      'Account services are not connected on this website. Use sample details only. The forms do not send or save passwords, create accounts, remember you between visits, or send reset emails.',
+      'Accounts and essential cookies',
+      'Accounts store your profile and a salted password hash, not your password. An essential HTTP-only session cookie identifies your signed-in browser. Remember me extends the session to 30 days. Recovery and email changes use expiring single-use links. Optional social sign-in receives identity details from the provider. Guest booking linkage and social sign-in use additional short-lived essential cookies.',
     ],
     [
       'External services',
-      'WhatsApp opens outside this website and is subject to its own privacy policy. Rental enquiries are addressed to +977 980-0899505. Opening the conversation does not send the message for you.',
+      'Booking and account emails are processed by our configured delivery provider. Official WhatsApp Business messages may notify the desk; customer WhatsApp updates require consent at booking. The direct WhatsApp link opens outside this website without sending a message automatically. Development deliveries are captured privately rather than sent.',
     ],
     [
       'Rental assistant',
-      'The catalog guide sends your recent conversation to our website to prepare a reply from published rental information. It does not check live inventory or reserve cars. History is kept only for this tab session and can be cleared. Do not enter payment or identity documents. Optional voice dictation uses your browser’s speech service, which may process audio outside this website; the transcript is not submitted until you press Send.',
+      'The guide uses the current catalog and can check a vehicle for specific dates. Signed-in customers can ask about their own booking status. It cannot reserve a vehicle. When AI assistance is enabled, a limited question may be sent for intent classification; prices and status come from our database, not model-generated figures. Conversation history stays in this tab session and can be cleared. Do not enter payment or identity documents. Optional voice dictation uses your browser’s speech service, which may process audio outside this website; the transcript is not submitted until you press Send.',
     ],
     [
       'Cookie choices and optional analytics',
@@ -35,7 +35,7 @@ const notices = {
     ],
     [
       'Hosting and retention',
-      'Vercel hosts this website and may process IP addresses, request times and paths to deliver pages, maintain security and diagnose errors. Form drafts are held in page memory, not a customer database. Closing or reloading the page clears the draft; downloads remain until you delete them. If you send a WhatsApp message, the rental desk receives the details you choose to share. Sent conversations and any subsequent rental records are separate from the website and are not erased by clearing this site’s cookies.',
+      'Vercel hosts this website and may process IP addresses, request times and paths to deliver pages, maintain security and diagnose errors. Submitted account, booking, payment and support records persist in the rental database. Staff actions are audited. Clearing cookies does not delete these records or external messages. Contact the desk to request access, correction or deletion, subject to applicable accounting, rental and legal retention obligations.',
     ],
     [
       'Questions and data requests',
@@ -69,7 +69,7 @@ const notices = {
     ],
     [
       'Website information and liability',
-      'This website is a planning tool, not a live inventory, payment or reservation service. We aim to keep information accurate but cannot guarantee uninterrupted access, an available car or current road conditions. To the extent permitted by law, U Drive is not liable for indirect losses arising from reliance on an unconfirmed estimate or itinerary. Nothing here limits liability or consumer rights that cannot lawfully be limited.',
+      'Submitting a request records it as pending and temporarily holds its dates. It does not mean the rental is confirmed or that a payment has been taken. We aim to keep information accurate but cannot guarantee uninterrupted access, an available car or current road conditions. To the extent permitted by law, U Drive is not liable for indirect losses arising from reliance on an unconfirmed estimate or itinerary. Nothing here limits liability or consumer rights that cannot lawfully be limited.',
     ],
     [
       'Governing law and disputes',

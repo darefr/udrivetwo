@@ -106,7 +106,7 @@ export async function requestRentalReply(
     const response = await fetch('/api/rental-assistant', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'omit',
+      credentials: 'same-origin',
       cache: 'no-store',
       body: JSON.stringify(input),
       signal,
@@ -119,7 +119,17 @@ export async function requestRentalReply(
     return turn as AssistantReply
   } catch (error) {
     if (signal.aborted) throw error
-    const { catalogReply } = await import('./rental-guide')
-    return { ...catalogReply(input), source: 'offline' }
+    const ne =
+      input.language === 'ne' ||
+      /[\u0900-\u097f]/.test(input.messages.at(-1)?.text || '')
+    return {
+      role: 'assistant',
+      source: 'offline',
+      language: ne ? 'ne' : 'en',
+      action: 'team',
+      text: ne
+        ? 'अहिले उपलब्धता, मूल्य वा बुकिङ अवस्था जाँच गर्न सकिएन। कृपया U Drive लाई WhatsApp मा सम्पर्क गर्नुहोस्।'
+        : 'I cannot verify current prices, availability or booking status right now. Please contact the rental desk on WhatsApp.',
+    }
   }
 }

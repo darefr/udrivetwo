@@ -4,7 +4,8 @@ import { useEffect, useId, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { CarFront, ChevronDown, KeyRound, MapPin, Search } from 'lucide-react'
 import { DatePicker } from './date-picker'
-import { fleet, pickupLocations, rentalModes } from '@/lib/rental-data'
+import { rentalModes } from '@/lib/rental-data'
+import { useRentalPlatform } from './platform-provider'
 import {
   daysBetween,
   nextDay,
@@ -21,6 +22,7 @@ const blankTrip: Trip = {
   end: '',
 }
 export function RentalSearch({ initial = blankTrip }: { initial?: Trip }) {
+  const { fleet, pickupLocations, currency } = useRentalPlatform()
   const [trip, setTrip] = useState<Trip>(initial)
   const [ready, setReady] = useState(false)
   const [error, setError] = useState('')
@@ -62,7 +64,7 @@ export function RentalSearch({ initial = blankTrip }: { initial?: Trip }) {
         <span>
           <CarFront size={17} /> Rental search
         </span>
-        <small>Daily rates in NPR</small>
+        <small>Daily rates in {currency}</small>
       </div>
       <div className="search-grid">
         <div className="search-field">

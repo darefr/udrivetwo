@@ -1,0 +1,276 @@
+.desk-workspace {
+  padding-block: clamp(2rem, 5vw, 5rem);
+}
+.desk-mast {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+.desk-mast h1 {
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  letter-spacing: -0.055em;
+  margin-block: 0.65rem;
+}
+.desk-mast p:not(.eyebrow),
+.desk-entry > p:not(.eyebrow),
+.desk-control small {
+  color: var(--muted-foreground);
+}
+.desk-layout {
+  display: grid;
+  grid-template-columns: 12.5rem minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  margin-top: 2rem;
+}
+.desk-navigation nav,
+.desk-panel,
+.desk-stack,
+.desk-entry,
+.desk-editor,
+.desk-editor fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.desk-navigation nav {
+  gap: 0.2rem;
+}
+.desk-navigation nav a {
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+}
+.desk-navigation nav a:hover,
+.desk-navigation nav a[aria-current='page'] {
+  background: var(--surface);
+  font-weight: 750;
+}
+.desk-navigation nav a[aria-current='page'] {
+  color: var(--primary-dark);
+}
+.desk-navigation > .text-link {
+  margin: 1rem 0.8rem;
+}
+.desk-panel {
+  min-width: 0;
+  align-items: stretch;
+}
+.desk-panel > h2 {
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  letter-spacing: -0.045em;
+}
+.desk-panel > .action,
+.desk-entry > .action,
+.desk-editor .action {
+  align-self: start;
+}
+.desk-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.desk-metrics > div {
+  padding: 1rem;
+  background: var(--surface);
+}
+.desk-metrics dt,
+.desk-message small {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+.desk-metrics dd {
+  font-size: 1.6rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.desk-empty {
+  min-height: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  gap: 0.8rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+}
+.desk-table-scroll {
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.desk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.desk-table td,
+.desk-table th {
+  text-align: left;
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.desk-table th {
+  background: var(--surface);
+  white-space: nowrap;
+}
+.desk-table tr:last-child td {
+  border: 0;
+}
+.desk-badge {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  background: var(--soft-accent);
+  color: var(--primary-dark);
+}
+.desk-entry,
+.desk-editor {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: clamp(1rem, 2vw, 1.5rem);
+  overflow-wrap: anywhere;
+}
+.desk-entry h3,
+.desk-editor h3 {
+  font-size: 1.2rem;
+}
+.desk-entry h4 {
+  font-weight: 750;
+}
+.desk-entry .review-details {
+  margin: 0;
+}
+.desk-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.desk-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 650;
+}
+.desk-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+}
+.desk-toolbar > label {
+  flex: 1;
+  min-width: 8rem;
+}
+.desk-toolbar input,
+.desk-toolbar select {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.65rem;
+}
+.desk-message {
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.8rem 1rem;
+}
+.desk-message p,
+.desk-preserve {
+  white-space: pre-wrap;
+}
+.desk-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+.desk-days > div {
+  padding: 0.4rem;
+  background: var(--surface);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  min-width: 0;
+}
+.desk-days [data-busy='true'] {
+  background: var(--soft-accent);
+  color: var(--primary-dark);
+}
+.desk-days small {
+  display: block;
+  font-size: 0.875rem;
+}
+.desk-editor [type='file'] {
+  max-width: 100%;
+}
+.desk-entry .text-link,
+.desk-panel .text-link {
+  align-self: start;
+}
+.desk-alert {
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--soft-accent);
+  color: var(--foreground);
+}
+.desk-mobile-menu {
+  display: none;
+}
+@media (max-width: 800px) {
+  .desk-mobile-menu {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.875rem;
+    font-weight: 650;
+  }
+  .desk-mobile-menu select {
+    font-size: 1rem;
+  }
+  .desk-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .desk-navigation nav {
+    display: none;
+  }
+  .desk-navigation {
+    display: flex;
+    align-items: end;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .desk-navigation > .text-link {
+    margin: 0.7rem;
+  }
+  .desk-mast > .inline-icon {
+    display: none;
+  }
+}
+@media (max-width: 580px) {
+  .desk-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .desk-days {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .desk-navigation nav a {
+    padding: 0.45rem 0.6rem;
+  }
+  .desk-table td,
+  .desk-table th {
+    padding: 0.6rem;
+  }
+  .desk-entry > .desk-editor {
+    padding: 0.6rem;
+  }
+}

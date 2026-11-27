@@ -8,7 +8,13 @@ __v0_jsx-dev-runtime.ts
 .vercel/
 
 # Environment variables
-.env*.local
+.env*
+!.env.example
+.udrive/
+.udrive-test*/
+playwright-report/
+test-results/
+*.tsbuildinfo
 
 # Common ignores
 node_modules

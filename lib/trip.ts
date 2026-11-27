@@ -1,4 +1,9 @@
-import { getVehicle, pickupLocations, type RentalMode } from './rental-data'
+import {
+  fleet,
+  pickupLocations,
+  type RentalMode,
+  type Vehicle,
+} from './rental-data'
 
 export type Trip = {
   vehicle: string
@@ -46,17 +51,19 @@ export const displayDate = (value: string) =>
         timeZone: 'UTC',
       }).format(new Date(`${value}T00:00:00Z`))
     : 'Select date'
-export function readTrip(query: Query): Trip {
+export function readTrip(
+  query: Query,
+  vehicles: Vehicle[] = fleet,
+  locations = pickupLocations,
+): Trip {
   const read = (key: string) =>
     typeof query[key] === 'string' ? (query[key] as string) : ''
   const start = read('start')
   const end = read('end')
   return {
-    vehicle: getVehicle(read('vehicle'))?.slug ?? '',
+    vehicle: vehicles.find((v) => v.slug === read('vehicle'))?.slug ?? '',
     mode: read('mode') === 'with-driver' ? 'with-driver' : 'self-drive',
-    pickup: pickupLocations.includes(read('pickup'))
-      ? read('pickup')
-      : 'Kathmandu',
+    pickup: locations.includes(read('pickup')) ? read('pickup') : 'Kathmandu',
     start: validDate(start) && start >= todayInNepal() ? start : '',
     end:
       validDate(start) &&

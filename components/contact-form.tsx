@@ -11,12 +11,12 @@ import {
   MountainSnow,
 } from 'lucide-react'
 import { FieldGroup } from './ui/field'
+import { api, useContact } from './platform-provider'
 import { FormField, PreviewNote } from './form-parts'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
 import { downloadText } from '@/lib/trip'
 import { recordConversion } from '@/lib/privacy'
-import { business, whatsappHref, whatsAppContact } from '@/lib/rental-data'
 
 type Enquiry = { name: string; email: string; topic: string; message: string }
 export function ContactForm({
@@ -26,6 +26,8 @@ export function ContactForm({
   vehicle?: string
   feedback?: boolean
 }) {
+  const whatsAppContact = useContact(),
+    whatsappHref = whatsAppContact.link
   const [values, setValues] = useState<Enquiry>({
     name: '',
     email: '',
@@ -50,12 +52,27 @@ export function ContactForm({
   }
   const prepare = (e: FormEvent) => {
     e.preventDefault()
+    setSent('')
     if (values.name.trim().length < 2 || values.message.trim().length < 10) {
       setError('Add your name and a message of at least 10 characters.')
       return
     }
     setPrepared(true)
     recordConversion('Contact enquiry prepared')
+  }
+  const [sent, setSent] = useState(''),
+    [sending, setSending] = useState(false)
+  const send = async () => {
+    setSending(true)
+    setError('')
+    try {
+      const r = await api('support', values)
+      setSent(r.id)
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setSending(false)
+    }
   }
   const draft = `U DRIVE CAR RENTAL KATHMANDU\nENQUIRY DRAFT — NOT SENT\n\nName: ${values.name}\nEmail: ${values.email}\nSubject: ${values.topic}\n\n${values.message}`
   return (
@@ -69,8 +86,8 @@ export function ContactForm({
                 Your enquiry is ready.
               </h2>
               <p className="section-description">
-                Open WhatsApp to send these details to the Kathmandu rental
-                desk. You can edit the message before sending it.
+                Send these details to the rental desk here, or continue on
+                WhatsApp. You can edit your message before sending.
               </p>
               <dl className="review-details">
                 {[
@@ -85,7 +102,28 @@ export function ContactForm({
                   </div>
                 ))}
               </dl>
+              {sent && (
+                <p className="form-response" role="status">
+                  Message received by U Drive. Reference: {sent}
+                </p>
+              )}
+              {error && (
+                <p className="form-error" role="alert">
+                  {error}
+                </p>
+              )}
               <div className="action-row">
+                <button
+                  className="action primary"
+                  disabled={!!sent || sending}
+                  onClick={send}
+                >
+                  {sent
+                    ? 'Message received'
+                    : sending
+                      ? 'Sending…'
+                      : 'Send to rental desk'}
+                </button>
                 <a
                   className="action primary"
                   href={whatsappHref(
@@ -241,7 +279,7 @@ export function ContactForm({
               rel="noopener noreferrer"
             >
               <img src="/images/whatsapp.svg" alt="" width={16} height={16} />
-              {business.whatsappNumber}
+              {whatsAppContact.number}
             </a>
             <Link href="/faq" className="text-link">
               Browse rental FAQs <ArrowRight size={15} />
