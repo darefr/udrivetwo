@@ -5,11 +5,8 @@ import { FleetResults } from '@/components/fleet-results'
 import { CTA } from '@/components/footer'
 import { readTrip, type Query } from '@/lib/trip'
 
-export const metadata: Metadata = {
-  title: 'Our Fleet & Daily Rental Rates',
-  description:
-    'Compare the Deepal S05, BYD Atto 3, Tata Nexon, and BYD Atto 1. Explore daily rental prices, self drive, and chauffeur options in Nepal.',
-}
+import { pageMetadata } from '@/lib/site-metadata'
+export const metadata: Metadata = pageMetadata('/fleet')
 export default async function FleetPage({
   searchParams,
 }: {

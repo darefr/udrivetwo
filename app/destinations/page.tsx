@@ -4,11 +4,8 @@ import { CloudSun, MountainSnow, Route } from 'lucide-react'
 import { Breadcrumbs, SectionHeading } from '@/components/shared'
 import { DestinationBrowser } from '@/components/destination-browser'
 import { CTA } from '@/components/footer'
-export const metadata: Metadata = {
-  title: 'Destinations — The Nepal Roadbook',
-  description:
-    'Explore eight Nepal destinations, from Kathmandu and Pokhara to Lumbini, Bandipur, Dhulikhel and Lower Mustang. Find local stops and practical rental route notes.',
-}
+import { pageMetadata } from '@/lib/site-metadata'
+export const metadata: Metadata = pageMetadata('/destinations')
 export default function DestinationsPage() {
   return (
     <>

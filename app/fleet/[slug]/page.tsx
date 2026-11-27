@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { fleet, getVehicle, money } from '@/lib/rental-data'
+import { fleet, getVehicle } from '@/lib/rental-data'
+import { vehicleMetadata, missingMetadata } from '@/lib/site-metadata'
+
+export const dynamicParams = false
 import { readTrip, type Query } from '@/lib/trip'
 import { VehicleDetail } from '@/components/vehicle-detail'
 
@@ -11,12 +14,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const v = getVehicle((await params).slug)
-  return v
-    ? {
-        title: `${v.name} Rental — ${money(v.dailyRate)} / day`,
-        description: `Explore the ${v.name} with U Drive Kathmandu. Choose self drive or with driver, view the gallery, and plan your rental at ${money(v.dailyRate)} per day.`,
-      }
-    : { title: 'Vehicle not found' }
+  return v ? vehicleMetadata(v) : missingMetadata
 }
 export default async function VehiclePage({
   params,

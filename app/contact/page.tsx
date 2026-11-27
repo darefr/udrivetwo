@@ -3,11 +3,8 @@ import { DeskQuestions, PageIntro } from '@/components/shared'
 import { ContactForm } from '@/components/contact-form'
 import { getVehicle } from '@/lib/rental-data'
 import { type Query } from '@/lib/trip'
-export const metadata: Metadata = {
-  title: 'Contact U Drive',
-  description:
-    'Plan a rental enquiry with U Drive Car Rental Kathmandu. Ask about the fleet, rental options, and pickup or delivery across Nepal.',
-}
+import { pageMetadata } from '@/lib/site-metadata'
+export const metadata: Metadata = pageMetadata('/contact')
 export default async function ContactPage({
   searchParams,
 }: {

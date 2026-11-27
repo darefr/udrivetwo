@@ -40,7 +40,7 @@ export function VehicleGallery({ vehicle }: { vehicle: Vehicle }) {
             key={p.image}
             aria-pressed={i === index}
             onClick={() => setIndex(i)}
-            aria-label={`Show ${p.label.toLowerCase()}`}
+            aria-label={`${p.label.split(' ')[0]} view: show ${vehicle.name}, ${p.label.toLowerCase()}`}
           >
             <Image src={p.image} alt="" width={80} height={56} />
             <span>{p.label.split(' ')[0]} view</span>

@@ -126,11 +126,11 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <div className="auth-photo-shade" />
           <div className="auth-photo-copy">
             <p className="eyebrow">U DRIVE CAR RENTAL</p>
-            <h2>
+            <p className="auth-photo-title">
               Your next drive
               <br />
               starts here.
-            </h2>
+            </p>
             <p className="inline-icon">
               <MapPin size={14} />
               Kathmandu, Nepal
@@ -274,7 +274,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Terms of Use
+                      Terms &amp; Conditions
                     </Link>{' '}
                     and{' '}
                     <Link

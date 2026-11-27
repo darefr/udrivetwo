@@ -15,6 +15,7 @@ import { FormField, PreviewNote } from './form-parts'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
 import { downloadText } from '@/lib/trip'
+import { recordConversion } from '@/lib/privacy'
 import { business, whatsappHref, whatsAppContact } from '@/lib/rental-data'
 
 type Enquiry = { name: string; email: string; topic: string; message: string }
@@ -54,6 +55,7 @@ export function ContactForm({
       return
     }
     setPrepared(true)
+    recordConversion('Contact enquiry prepared')
   }
   const draft = `U DRIVE CAR RENTAL KATHMANDU\nENQUIRY DRAFT — NOT SENT\n\nName: ${values.name}\nEmail: ${values.email}\nSubject: ${values.topic}\n\n${values.message}`
   return (

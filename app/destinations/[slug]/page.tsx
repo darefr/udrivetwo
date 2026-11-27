@@ -6,6 +6,9 @@ import { ArrowRight, MapPin, Route, Signpost } from 'lucide-react'
 import { destinations } from '@/lib/rental-data'
 import { Breadcrumbs, SectionHeading } from '@/components/shared'
 import { DestinationCard } from '@/components/destination-card'
+import { destinationMetadata, missingMetadata } from '@/lib/site-metadata'
+
+export const dynamicParams = false
 export const generateStaticParams = () =>
   destinations.map((d) => ({ slug: d.slug }))
 export async function generateMetadata({
@@ -15,12 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const destination = destinations.find((item) => item.slug === slug)
-  return {
-    title: destination
-      ? `${destination.name} Travel Guide`
-      : 'Destination not found',
-    description: destination?.description,
-  }
+  return destination ? destinationMetadata(destination) : missingMetadata
 }
 export default async function DestinationPage({
   params,
@@ -58,7 +56,8 @@ export default async function DestinationPage({
           </div>
           <Image
             src={d.image}
-            alt={`${d.name}: ${d.tagline}`}
+            alt={d.imageAlt}
+            sizes="(max-width: 740px) 92vw, (max-width: 1200px) 46vw, 620px"
             width={508}
             height={508}
             priority

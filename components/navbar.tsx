@@ -229,7 +229,7 @@ export function Navbar() {
             <MountainSnow size={15} />
             <span>From the valley to the mountains</span>
             <span className="utility-div" />
-            <Link href="/faq">
+            <Link href="/faq" prefetch={false}>
               <CircleHelp size={13} /> FAQs
             </Link>
           </div>
@@ -296,6 +296,7 @@ export function Navbar() {
                       ? pathname === '/'
                       : pathname.startsWith(link.href)) && 'active',
                   )}
+                  prefetch={false}
                   aria-current={pathname === link.href ? 'page' : undefined}
                   key={link.href}
                   href={link.href}
@@ -306,7 +307,7 @@ export function Navbar() {
             )}
           </nav>
           <div className="nav-actions">
-            <Link className="sign-in-link" href="/sign-in">
+            <Link className="sign-in-link" href="/sign-in" prefetch={false}>
               <UserRound size={16} />
               Sign In
             </Link>

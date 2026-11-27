@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import { Navbar } from '@/components/navbar'
 import { Footer, FloatingContact } from '@/components/footer'
-import { business, fleet, money } from '@/lib/rental-data'
+import { business } from '@/lib/rental-data'
+import { siteOrigin } from '@/lib/site-routes'
+import { PrivacyControls } from '@/components/privacy-controls'
 import './globals.css'
 
 const manrope = localFont({
@@ -20,19 +22,17 @@ const devanagari = localFont({
   adjustFontFallback: false,
 })
 export const metadata: Metadata = {
-  title: {
-    default:
-      'U Drive Car Rental Kathmandu | Your Journey. Your Car. Your Nepal.',
-    template: '%s | U Drive Kathmandu',
-  },
-  description: `Compare ${fleet.length} rental cars from ${money(Math.min(...fleet.map((car) => car.dailyRate)))} per day. Plan self-drive or chauffeur rentals across Nepal and request a confirmed quote from our Kathmandu team on WhatsApp.`,
-  icons: { icon: '/icon.svg' },
-  openGraph: {
-    siteName: business.name,
-    title: business.name,
-    description: business.description,
-    type: 'website',
-    locale: 'en_NP',
+  metadataBase: new URL(siteOrigin),
+  title: business.name,
+  description: business.description,
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '16x16 32x32 48x48', type: 'image/x-icon' },
+      { url: '/favicon.png', sizes: '64x64', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
 }
 export const viewport: Viewport = {
@@ -53,6 +53,7 @@ export default function RootLayout({
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
+        <PrivacyControls />
         <Navbar />
         <main id="main-content" tabIndex={-1}>
           {children}

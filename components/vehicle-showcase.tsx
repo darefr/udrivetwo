@@ -21,6 +21,7 @@ export function VehicleShowcase({ children }: { children: ReactNode }) {
   const [visible, setVisible] = useState(true)
   const [hovered, setHovered] = useState(false)
   const [loaded, setLoaded] = useState<number[]>([])
+  const [firstFailed, setFirstFailed] = useState(false)
   const region = useRef<HTMLElement>(null)
   const photos = useRef<(HTMLImageElement | null)[]>([])
   const vehicle = fleet[index]
@@ -99,37 +100,53 @@ export function VehicleShowcase({ children }: { children: ReactNode }) {
           setPaused(true)
       }}
     >
-      <div className="showcase-photos" aria-hidden="true">
-        {fleet.map((car, i) => (
-          <picture
-            key={car.slug}
-            className="hero-photo"
-            data-active={index === i}
-          >
-            <source media="(max-width: 900px)" srcSet={car.showcase.mobile} />
-            <img
-              ref={(el) => {
-                photos.current[i] = el
-              }}
-              src={car.showcase.desktop}
-              alt=""
-              width="1226"
-              height="498"
-              loading="eager"
-              decoding="async"
-              fetchPriority={i === 0 ? 'high' : 'low'}
-              onLoad={async (event) => {
-                const img = event.currentTarget
-                try {
-                  await img.decode()
-                } catch {
-                  if (!img.naturalWidth) return
-                }
-                setLoaded((old) => (old.includes(i) ? old : [...old, i]))
-              }}
-            />
-          </picture>
-        ))}
+      <div className="showcase-photos">
+        {fleet
+          .slice(0, loaded.includes(0) || firstFailed ? fleet.length : 1)
+          .map((car, i) => (
+            <picture
+              key={car.slug}
+              aria-hidden={index !== i}
+              className="hero-photo"
+              data-active={index === i}
+            >
+              {car.showcase.avif && (
+                <source
+                  media="(max-width: 900px)"
+                  type="image/avif"
+                  srcSet={car.showcase.avif.mobile}
+                />
+              )}
+              <source media="(max-width: 900px)" srcSet={car.showcase.mobile} />
+              {car.showcase.avif && (
+                <source type="image/avif" srcSet={car.showcase.avif.desktop} />
+              )}
+              <img
+                ref={(el) => {
+                  photos.current[i] = el
+                }}
+                src={car.showcase.desktop}
+                alt={`${car.name} on a winding mountain road in Nepal`}
+                onError={() => {
+                  if (i === 0) setFirstFailed(true)
+                }}
+                width="1226"
+                height="498"
+                loading="eager"
+                decoding="async"
+                fetchPriority={i === 0 ? 'high' : 'low'}
+                onLoad={async (event) => {
+                  const img = event.currentTarget
+                  try {
+                    await img.decode()
+                  } catch {
+                    if (!img.naturalWidth) return
+                  }
+                  setLoaded((old) => (old.includes(i) ? old : [...old, i]))
+                }}
+              />
+            </picture>
+          ))}
       </div>
       <div className="hero-shade" />
       <div className="wrap hero-inner">
@@ -187,6 +204,7 @@ export function VehicleShowcase({ children }: { children: ReactNode }) {
           </div>
           <Link
             href={`/fleet/${vehicle.slug}`}
+            prefetch={false}
             className="showcase-car"
             aria-live={paused ? 'polite' : 'off'}
             aria-atomic="true"

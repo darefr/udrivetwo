@@ -62,7 +62,10 @@ export function FAQPage() {
               ),
             )}
           </div>
-          <div aria-live="polite">
+          <p className="sr-only" role="status">
+            {items.length} matching questions
+          </p>
+          <div>
             {items.length ? (
               <FAQ items={items} />
             ) : (
@@ -82,10 +85,15 @@ export function FAQPage() {
             )}
           </div>
           <div className="faq-contact">
-            <h3>Still planning your trip?</h3>
-            <Link href="/contact" className="text-link">
-              Contact U Drive
-            </Link>
+            <h2>Still planning your trip?</h2>
+            <div className="action-row">
+              <Link href="/booking" className="action primary">
+                Request a rental quote
+              </Link>
+              <Link href="/contact" className="text-link">
+                Ask the rental desk
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -45,7 +45,16 @@ export function FloatingContact() {
       frame = 0
       const { left, right, height } = el.getBoundingClientRect()
       const viewport = window.innerHeight
-      const safeBottom = 16
+      const banner = document
+        .querySelector('.privacy-banner')
+        ?.getBoundingClientRect()
+      const safeBottom =
+        banner &&
+        banner.right >= left &&
+        banner.top < viewport &&
+        banner.bottom > viewport / 2
+          ? Math.ceil(viewport - banner.top + 8)
+          : 16
       // Keep the dock viewport-fixed. Only change parking slots when it would mask a control.
       const obstacles = Array.from(
         document.querySelectorAll<HTMLElement>(
@@ -81,11 +90,17 @@ export function FloatingContact() {
     const main = document.querySelector('main')
     const observer = new ResizeObserver(schedule)
     if (main) observer.observe(main)
+    const consentObserver = new MutationObserver(schedule)
+    consentObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style'],
+    })
     window.addEventListener('resize', schedule)
     window.addEventListener('scroll', schedule, { passive: true })
     document.addEventListener('focusin', schedule)
     return () => {
       observer.disconnect()
+      consentObserver.disconnect()
       cancelAnimationFrame(frame)
       window.removeEventListener('resize', schedule)
       window.removeEventListener('scroll', schedule)

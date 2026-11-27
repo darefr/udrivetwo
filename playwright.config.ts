@@ -12,6 +12,11 @@ export default defineConfig({
   projects: [
     { name: 'rental-logic', testMatch: 'rental-core.spec.ts' },
     {
+      name: 'launch',
+      testMatch: 'launch.spec.ts',
+      use: { viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' },
+    },
+    {
       name: 'journeys',
       testMatch: 'rental-journeys.spec.ts',
       use: { viewport: { width: 482, height: 773 } },

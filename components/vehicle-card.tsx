@@ -18,7 +18,7 @@ export function VehicleCard({
       <Link
         href={details}
         className="vehicle-photo"
-        aria-label={`View ${vehicle.name} details`}
+        aria-label={`${vehicle.fuel === 'Electric' ? 'Electric ' : ''}${vehicle.bodyType}: View ${vehicle.name} details`}
       >
         <Image
           src={vehicle.image}

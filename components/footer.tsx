@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight, MapPin, Route } from 'lucide-react'
 import { Brand } from './brand'
+import { CookieSettingsLink } from './privacy-controls'
 import {
   business,
   destinations,
@@ -106,7 +107,7 @@ export function Footer() {
               key={g.title}
               aria-label={`${g.title} footer links`}
             >
-              <h3>{g.title}</h3>
+              <h2>{g.title}</h2>
               {g.links.map(([name, url]) =>
                 url.startsWith('https:') ? (
                   <a
@@ -148,7 +149,8 @@ export function Footer() {
           </span>
           <nav aria-label="Legal information">
             <Link href="/privacy">Privacy Policy</Link>
-            <Link href="/terms">Terms of Use</Link>
+            <Link href="/terms">Terms &amp; Conditions</Link>
+            <CookieSettingsLink />
           </nav>
         </div>
       </div>

@@ -12,6 +12,10 @@ import {
 import { ReviewCarousel } from '@/components/review-carousel'
 import { CTA } from '@/components/footer'
 
+import { pageMetadata } from '@/lib/site-metadata'
+
+export const metadata = pageMetadata('/')
+
 export default function Home() {
   return (
     <>

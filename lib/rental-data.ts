@@ -25,7 +25,11 @@ export type Vehicle = {
   dailyRate: number
   image: string
   gallery: { image: string; label: string }[]
-  showcase?: { desktop: string; mobile: string }
+  showcase?: {
+    desktop: string
+    mobile: string
+    avif?: { desktop: string; mobile: string }
+  }
   overview: string
   bodyType: 'SUV' | 'Sedan' | 'Hatchback'
   seats: number
@@ -66,6 +70,10 @@ const vehicle = (
 const heroPhotos = (slug: string) => ({
   desktop: `/images/showcase-${slug}.webp`,
   mobile: `/images/showcase-${slug}-mobile.webp`,
+  avif: {
+    desktop: `/images/showcase-${slug}.avif`,
+    mobile: `/images/showcase-${slug}-mobile.avif`,
+  },
 })
 
 export const fleet: Vehicle[] = [
@@ -190,6 +198,7 @@ export type Destination = {
   stops: string[]
   advice: string
   image: string
+  imageAlt: string
 }
 export const destinations: Destination[] = [
   {
@@ -203,6 +212,8 @@ export const destinations: Destination[] = [
     advice:
       'Allow flexibility for weather and road conditions on the journey from Kathmandu. Confirm your route and stops before departure.',
     image: '/images/drive-pokhara.webp',
+    imageAlt:
+      'A blue crossover follows a bend beside Phewa Lake, with wooded hills across the water.',
   },
   {
     slug: 'kathmandu',
@@ -215,6 +226,8 @@ export const destinations: Destination[] = [
     advice:
       'Many heritage squares are best explored on foot. Plan a nearby drop-off or parking point with the team.',
     image: '/images/drive-kathmandu.webp',
+    imageAlt:
+      'A silver crossover passes brick shopfronts and pedestrians on a Kathmandu street.',
   },
   {
     slug: 'nagarkot',
@@ -227,6 +240,8 @@ export const destinations: Destination[] = [
     advice:
       'Mountain views depend on the weather. Discuss the hill road and the best handover time for your itinerary.',
     image: '/images/drive-nagarkot.webp',
+    imageAlt:
+      'A red SUV rounds a pine-lined bend on the hillside road near Nagarkot.',
   },
   {
     slug: 'chitwan',
@@ -239,6 +254,8 @@ export const destinations: Destination[] = [
     advice:
       'Your rental covers the road journey. Park entry, guides, and wildlife activities are separate arrangements.',
     image: '/images/drive-chitwan.webp',
+    imageAlt:
+      'A light-coloured hatchback on a narrow road through tall green forest in Chitwan.',
   },
   {
     slug: 'lumbini',
@@ -251,6 +268,8 @@ export const destinations: Destination[] = [
     advice:
       'Agree on an entrance and meeting point rather than a temple door. The monastic grounds extend well beyond the Sacred Garden, so leave time to explore between stops.',
     image: '/images/drive-lumbini.webp',
+    imageAlt:
+      'A white temple and reflecting pool among trees in the Sacred Garden at Lumbini.',
   },
   {
     slug: 'bandipur',
@@ -263,6 +282,8 @@ export const destinations: Destination[] = [
     advice:
       'Plan a drop-off or parking spot outside the pedestrian bazaar. Ask your guesthouse which approach is easiest with luggage, particularly if you arrive late in the day.',
     image: '/images/drive-bandipur.webp',
+    imageAlt:
+      'Timber balconies line a stone-paved lane in Bandipur, with green hills beyond the rooftops.',
   },
   {
     slug: 'dhulikhel',
@@ -279,6 +300,8 @@ export const destinations: Destination[] = [
     advice:
       'A viewpoint on the map may be a walk from the road. Check the last vehicle-accessible stop and plan your return around valley traffic, not just distance.',
     image: '/images/drive-dhulikhel.webp',
+    imageAlt:
+      'A car climbs a winding road through green terraces toward hillside houses near Dhulikhel.',
   },
   {
     slug: 'mustang',
@@ -291,6 +314,8 @@ export const destinations: Destination[] = [
     advice:
       'Ask the desk to check road conditions, vehicle clearance, permits and overnight stops before choosing a car. Not every rental is suitable. Upper Mustang has separate access requirements.',
     image: '/images/drive-mustang.webp',
+    imageAlt:
+      'Stone houses overlook the broad riverbed and ochre cliffs of the Kali Gandaki valley in Mustang.',
   },
 ]
 
@@ -369,6 +394,18 @@ export const faqs: FAQItem[] = [
     question: 'Can I plan a trip without an account?',
     answer:
       'Yes. Compare the fleet, calculate an estimate, and contact the Kathmandu team on WhatsApp as a guest. You do not need an account to request your rental.',
+  },
+  {
+    category: 'Pricing',
+    question: 'When do I pay, and is there a deposit?',
+    answer:
+      'No payment is taken on this website. Ask the desk for the deposit, payment method, insurance cover and any extra charges in writing before you agree to a rental. Do not enter card details in your enquiry.',
+  },
+  {
+    category: 'Booking',
+    question: 'How do I change or cancel a request?',
+    answer:
+      'Before sending, edit the dates or vehicle in the planner. If you have already sent your message, reply in the same WhatsApp conversation. For a confirmed rental, the cancellation and refund terms in your agreement apply.',
   },
 ]
 

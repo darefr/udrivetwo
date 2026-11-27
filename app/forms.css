@@ -512,7 +512,10 @@
 .auth-photo .eyebrow {
   color: var(--background);
 }
-.auth-photo h2 {
+.auth-photo-title {
+  font-weight: 750;
+  line-height: 1.17;
+  letter-spacing: -0.045em;
   font-size: 45px;
 }
 .auth-photo .inline-icon {
@@ -916,7 +919,10 @@
     left: 22px;
     bottom: 20px;
   }
-  .auth-photo h2 {
+  .auth-photo-title {
+    font-weight: 750;
+    line-height: 1.17;
+    letter-spacing: -0.045em;
     font-size: 29px;
   }
   .auth-photo .eyebrow {

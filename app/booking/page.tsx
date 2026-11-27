@@ -3,11 +3,8 @@ import { BookingForm } from '@/components/booking-form'
 import { PageIntro } from '@/components/shared'
 import { destinations } from '@/lib/rental-data'
 import { readTrip, type Query } from '@/lib/trip'
-export const metadata: Metadata = {
-  title: 'Rent a Car',
-  description:
-    'Choose your vehicle, rental mode, pickup location, and dates. Calculate your daily rental estimate and prepare your U Drive booking request.',
-}
+import { pageMetadata } from '@/lib/site-metadata'
+export const metadata: Metadata = pageMetadata('/booking')
 export default async function BookingPage({
   searchParams,
 }: {

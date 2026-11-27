@@ -1,19 +1,22 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export function Brand({ onNavigate }: { onNavigate?: () => void } = {}) {
   return (
     <Link
       className="brand"
       href="/"
+      prefetch={false}
       onClick={onNavigate}
       aria-label="U Drive Car Rental Kathmandu — home"
     >
-      <img
+      <Image
         className="brand-logo"
         src="/images/u-drive-logo.webp"
         alt="U Drive Car Rental"
-        width={1000}
-        height={320}
+        width={520}
+        height={166}
+        sizes="146px"
       />
     </Link>
   )

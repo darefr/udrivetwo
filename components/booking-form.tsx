@@ -40,6 +40,7 @@ import {
   type Trip,
 } from '@/lib/trip'
 import { useInteractive } from '@/lib/use-interactive'
+import { recordConversion } from '@/lib/privacy'
 import { BookingSummary } from './booking-summary'
 import { DatePicker } from './date-picker'
 import { FormField, PreviewNote } from './form-parts'
@@ -160,6 +161,8 @@ export function BookingForm({
       }
     setErrors({})
     setStep(target)
+    if (target === bookingSteps.length - 1 && target > reached)
+      recordConversion('Rental enquiry prepared')
     setReached((old) => Math.max(old, target))
     focus(`rental-step-${target}`)
   }

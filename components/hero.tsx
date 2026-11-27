@@ -32,7 +32,11 @@ export function Hero() {
             <Link href="/booking" className="action primary">
               Rent a Car <ArrowRight size={17} />
             </Link>
-            <Link href="/fleet" className="action light-outline">
+            <Link
+              href="/fleet"
+              prefetch={false}
+              className="action light-outline"
+            >
               Explore Fleet <ArrowUpRight size={16} />
             </Link>
           </div>
@@ -75,7 +79,12 @@ export function ValueStrip() {
     <section className="value-strip" aria-label="Rental services and coverage">
       <div className="wrap value-grid">
         {values.map((v) => (
-          <Link key={v.title} href={v.href} className="value-item">
+          <Link
+            key={v.title}
+            href={v.href}
+            prefetch={false}
+            className="value-item"
+          >
             <span className="value-icon">{v.icon}</span>
             <span>
               <strong>{v.title}</strong>

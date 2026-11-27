@@ -2,6 +2,13 @@ import { expect, test, type Page } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 import { addRentalDays, todayInNepal } from '../lib/trip'
 
+test.beforeEach(async ({ context, baseURL }) => {
+  // These returning-visitor journeys use essential-only consent. First visits are exercised in launch.spec.ts.
+  await context.addCookies([
+    { name: 'udrive_privacy_v1', value: 'essential', url: baseURL! },
+  ])
+})
+
 const start = addRentalDays(todayInNepal(), 10)
 const end = addRentalDays(start, 5)
 const ready = async (page: Page) =>

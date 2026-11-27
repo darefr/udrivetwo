@@ -1,11 +1,15 @@
 import Link from 'next/link'
 import { ArrowRight, Signpost } from 'lucide-react'
+import { missingMetadata } from '@/lib/site-metadata'
+
+export const metadata = missingMetadata
+
 export default function NotFound() {
   return (
     <section className="section">
       <div className="wrap missing-page">
         <Signpost size={36} />
-        <p className="eyebrow">PAGE NOT FOUND</p>
+        <p className="eyebrow">404 · PAGE NOT FOUND</p>
         <h1>A different turn.</h1>
         <p>
           This page is not on our current route. Head back to the fleet or

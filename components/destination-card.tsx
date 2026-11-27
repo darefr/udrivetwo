@@ -11,7 +11,7 @@ export function DestinationCard({ destination }: { destination: Destination }) {
     >
       <Image
         src={destination.image}
-        alt=""
+        alt={destination.imageAlt}
         width={508}
         height={508}
         sizes="(max-width: 640px) 90vw, 36vw"
